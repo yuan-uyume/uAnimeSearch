@@ -1,11 +1,11 @@
 [
     {
         "name": "樱花动漫",
-        "md5": "CA8E9F477861D3A4",
+        "md5": "30a864a7ff9142f69beef083e9e9edf7",
         "search": {
             "api": false,
             "site": "https://yhdm6.top",
-            "path": "/index.php/vod/search.html?wd={word}&submit="
+            "path": "/index.php/vod/search.html?wd={1}&submit="
         },
         "htmlDataTrans": {
             "page": {

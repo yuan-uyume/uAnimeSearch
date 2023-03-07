@@ -1,3 +1,4 @@
+import MD5 from '../lib/md5.js'
 const uAnimeEx = {
     version: "0.0.1",
     loadFormFile: function (file, callback) {
@@ -52,7 +53,9 @@ const uAnimeEx = {
                     flag = false
                 }
             }
-            components.push(o)
+            if(flag) {
+                components.push(o)
+            }
         }
         window.localStorage["componentsStorage"] = JSON.stringify(components)
         callback(components)
@@ -60,15 +63,15 @@ const uAnimeEx = {
     verifyMd5: function (json) {
         let { md5, ...obj } = json
         let calMd5 = uAnimeEx.md5(obj)
-        // let result = calMd5 == md5
-        let result = true
+        let result = calMd5 == md5
+        // let result = true
         if (!result) {
             console.log("验证MD5失败", json.name, calMd5, md5);
         }
         return result
     },
     md5: function (obj) {
-        return obj
+        return MD5.hex_md5(JSON.stringify(obj))
     }
 }
 
