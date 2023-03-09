@@ -9,7 +9,9 @@
     "48": "icons/128.png",
     "128": "icons/128.png"
   },
-  "options_page": "pages/search.html",
+  "options_ui": {
+    "page": "pages/search.html"
+  },
   "background": {
     "scripts": [
       "background.js"
