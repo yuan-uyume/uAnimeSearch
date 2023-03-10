@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>My Chrome Extension</title>
-    <script src="popup.js"></script>
+    
 </head>
 <style>
-  html {
+html {
     font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif;
     color: #222;
 }
@@ -34,7 +34,7 @@ body {
   box-shadow: 0px 0px 4px 4px rgba(155, 155, 161, 0.3);
 }
 
-#input {
+#popinput {
 border: #dad5d5 solid 1px;
 border-radius: 4px;
 outline: none;
@@ -44,7 +44,7 @@ padding: 2px 6px;
 box-shadow: 1px 1px 3px 3px rgba(155, 155, 161, 0.1);
 }
 
-#input:focus {
+#popinput:focus {
   border: #c6dbdf solid 1px;
   box-shadow: 1px 1px 3px 3px rgba(171, 184, 190, 0.2);
 }
@@ -66,16 +66,16 @@ box-shadow: 1px 1px 3px 3px rgba(155, 155, 161, 0.1);
   <div class="app">
     <div>
       <div class="image" style="border-radius: 50%; border:solid #f8f6f6 3px; overflow: hidden; height: 200px; width: 200px;">
-        <a href="javascript:void(0)" onclick="home()"><img src="icons/image1.png" alt="" style="height: 200px; width: 200px;"></a>
+        <a id="popimage" href="javascript:void(0)"><img src="icons/image1.png" alt="" style="height: 200px; width: 200px;"></a>
       </div>
     </div>
     <div style="margin-top: 20px;">
       <div>
-        <input id="input" type="text" />
+        <input id="popinput" type="text" />
       </div>
       <div style="margin-top: 12px;" class="btn">
-        <button style="margin-right: 16px;" onclick="search()">搜 索</button>
-        <button onclick="home()">主 页</button>
+        <button id="popsearch" style="margin-right: 16px;"">搜 索</button>
+        <button id="pophome">主 页</button>
       </div>
     </div>
     <div style="margin-top: 4px;color: silver;">
@@ -83,21 +83,5 @@ box-shadow: 1px 1px 3px 3px rgba(155, 155, 161, 0.1);
     </div>
   </div>
 </body>
-
-<script>
-  let input = document.getElementById("input")
-  input.addEventListener('pressKey', (event) => {
-    console.log(event);
-  })
-
-  function search() {
-    let txt = document.getElementById("input").value
-    txt = txt.trim()
-    console.log("popup search ", txt);
-  }
-
-  function home() {
-    window.open("./pages/search.html")
-  }
-</script>
+<script src="popup.js"></script>
 </html>

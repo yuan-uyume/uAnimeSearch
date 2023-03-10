@@ -1,17 +1,34 @@
 'use strict';
-(function() {
-  let input = document.getElementById("input")
-  input.addEventListener('pressKey', (event) => {
-    console.log(event);
+function addEventListener() {
+  let input = document.getElementById("popinput")
+  input.addEventListener('keypress', (event) => {
+    if(event.keyCode == 13) {
+      let txt = input.value.trim()
+      if (txt == '') {
+        window.open("./pages/search.html")
+      } else {
+        window.open("./pages/search.html?value="+ txt +"&type=0")
+      }
+    }
   })
 
-  function search() {
-    let txt = document.getElementById("input").value
-    txt = txt.trim()
-    console.log("popup search ", txt);
-  }
+  let search = document.getElementById("popsearch")
+  search.addEventListener('click', (event) => {
+    let txt = input.value.trim()
+    if (txt == '') {
+      window.open("./pages/search.html")
+    } else {
+      window.open("./pages/search.html?value="+ txt +"&type=0")
+    }
+  })
 
-  function home() {
+  let home = document.getElementById("pophome")
+  home.addEventListener('click', (event) => {
     window.open("./pages/search.html")
-  }
-})();
+  })
+}
+
+addEventListener()
+
+
+
