@@ -1,4 +1,4 @@
-# <img src="public/icons/icon_128.png" width="45" align="left"> uAnimeSearch
+# <img src="public/icons/128.png" width="45" align="left"> uAnimeSearch
 
 My Chrome Extension to search anime
 
