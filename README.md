@@ -1,11 +1,14 @@
-# <img src="public/icons/icon_48.png" width="45" align="left"> Uanimesearch
+# <img src="public/icons/icon_128.png" width="45" align="left"> Uanimesearch
 
-My Chrome Extension
+My Chrome Extension to search anime
 
 ## Features
 
-- Feature 1
-- Feature 2
+- 搜索
+- 收藏
+- 源管理
+- 订阅管理
+- 关于
 
 ## Install
 
@@ -14,8 +17,3 @@ My Chrome Extension
 ## Contribution
 
 Suggestions and pull requests are welcomed!.
-
----
-
-This project was bootstrapped with [Chrome Extension CLI](https://github.com/dutiyesh/chrome-extension-cli)
-
