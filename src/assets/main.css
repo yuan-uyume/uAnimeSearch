@@ -1,0 +1,51 @@
+@import './base.css';
+
+#app {
+  height: 100vh;
+  width: 100vw;
+  margin: 0 auto;
+  padding: 0;
+  font-weight: normal;
+}
+
+.el-container {
+  width: 100%!important;
+  height: 100%!important;
+}
+
+.el-menu {
+  height: 100%;
+}
+
+.el-menu-item {
+  z-index: 2;
+}
+
+.el-aside {
+  width: auto!important;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    display: flex;
+    padding: 0;
+  }
+}
