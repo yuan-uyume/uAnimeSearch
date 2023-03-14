@@ -5,7 +5,7 @@
     default-active="/search"
     router="true" 
     :collapse="isCollapse">
-      <el-switch v-model="isCollapse" style="margin-left: 6px" />
+      <el-switch v-model="isCollapse" style="margin-left: 10px" />
       <el-menu-item index="/search">
         <el-icon>
           <Search />
