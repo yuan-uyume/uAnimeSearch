@@ -8,19 +8,6 @@
   font-weight: normal;
 }
 
-.el-container {
-  width: 100%!important;
-  height: 100%!important;
-}
-
-.el-menu {
-  height: 100%;
-}
-
-.el-menu-item {
-  z-index: 2;
-}
-
 .el-aside {
   width: auto!important;
 }

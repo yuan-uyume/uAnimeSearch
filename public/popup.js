@@ -16,19 +16,19 @@ function addEventListener() {
   search.addEventListener('click', (event) => {
     let txt = input.value.trim()
     if (txt == '') {
-      window.open("./index.html")
+      window.open("./index.html#/search")
     } else {
-      window.open("./index.html?value="+ txt +"&type=0")
+      window.open("./index.html#/search?value="+ txt +"&type=0")
     }
   })
 
   let home = document.getElementById("pophome")
   let image = document.getElementById("popimage")
   home.addEventListener('click', (event) => {
-    window.open("./index.html")
+    window.open("./index.html#/search")
   })
   image.addEventListener('click', (event) => {
-    window.open("./index.html")
+    window.open("./index.html#/search")
   })
 }
 
