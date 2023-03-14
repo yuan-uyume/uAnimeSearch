@@ -17,15 +17,15 @@
                     <el-button @click="isMore = !isMore">更多</el-button>
                 </el-col>
             </el-row>
-            <el-row style="margin-top: 24px;margin-left: 0px;" gutter="30" v-show="isMore">
-                <el-col style="margin-bottom: 10px;" span="7">
+            <el-row style="margin-top: 24px;margin-left: -7px;" gutter="30" v-show="isMore">
+                <el-col style="flex: 1;margin-bottom: 10px;max-width: 200px;min-width: 200px;" span="7">
                     <el-tree-select placeholder="选择筛选源" v-model="treeValue" :data="treeData" multiple
                         :render-after-expand="false" show-checkbox />
                 </el-col>
-                <el-col style="margin-bottom: 10px;" span="10">
+                <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="10">
                     <el-input type="text" placeholder="筛选内容..."></el-input>
                 </el-col>
-                <el-col style="margin-bottom: 10px;" span="7">
+                <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="7">
                     <el-button>筛选</el-button>
                 </el-col>
             </el-row>
