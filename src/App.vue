@@ -12,7 +12,7 @@ export default {
 
 <template>
   <el-container>
-    <el-aside>
+    <el-aside style="box-shadow: 0px 0px 12px rgba(0, 0, 0, .12);">
       <SideMenu/>
     </el-aside>
     <el-container>

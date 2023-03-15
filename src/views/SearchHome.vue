@@ -29,20 +29,42 @@
                     <el-button>筛选</el-button>
                 </el-col>
             </el-row>
+            <el-divider></el-divider>
         </div>
-        <el-divider></el-divider>
         <div>
+            <el-row>
+                <el-col span="20">
+                    <AnimeResult :data="showSearchData"/>
+                </el-col>
+                <el-col span="4">
 
+                </el-col>
+            </el-row>
         </div>
     </div>
 </template>
 <script>
+import AnimeResult from '../components/AnimeResult.vue';
 export default {
+    components: {AnimeResult},
     data() {
         return {
             isMore: false,
             treeValue: '',
-            treeData: []
+            treeData: [],
+            searchData: [],
+            showSearchData:[{
+                title: "biao ti",
+                url: "www.baidu.com",
+                image: "#",
+                info: "this is a anime search result",
+                eps: [
+                    {
+                        title: '1',
+                        url: "#"
+                    }
+                ]
+            }]
         }
     }
 }
