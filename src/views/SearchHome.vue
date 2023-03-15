@@ -35,6 +35,20 @@
             <el-row>
                 <el-col span="20">
                     <AnimeResult :data="showSearchData"/>
+                    <div>
+                        <el-pagination
+                            :current-page="currentPage4"
+                            :page-size="pageSize4"
+                            :page-sizes="[100, 200, 300, 400]"
+                            :small="small"
+                            :disabled="disabled"
+                            :background="background"
+                            layout="total, sizes, prev, pager, next, jumper"
+                            :total="400"
+                            @size-change="handleSizeChange"
+                            @current-change="handleCurrentChange"
+                        />
+                    </div>
                 </el-col>
                 <el-col span="4">
 
