@@ -83,7 +83,7 @@ export default {
         }
     },
     mounted() {
-        this.searchComponents = this.uCore.getSearchComponents()
+        this.searchComponents = this.uCore.getSearchSources()
     }
 }
 </script>

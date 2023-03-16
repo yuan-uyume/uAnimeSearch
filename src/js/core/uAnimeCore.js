@@ -1,6 +1,6 @@
 const uAnimeCore = {
     version: "0.0.1",
-    components: [],
+    sources: [],
     log: function (component, ...txt) {
         console.log(component.name + "(" + component.md5 + ")", ...txt);
     },
@@ -14,7 +14,7 @@ const uAnimeCore = {
     },
     initCore: function () {
         try {
-            uAnimeCore.components = uAnimeCore.loadSearchComponents()
+            uAnimeCore.sources = uAnimeCore.loadSearchSources()
             console.log(uAnimeCore);
             return true
         } catch(e) {
@@ -45,12 +45,35 @@ const uAnimeCore = {
         }
         uAnimeCore.getSearchResultHtml(component, word, 1, limit, page, data, callback)
     },
-    loadSearchComponents: function () {
+    loadSearchSources: function () {
         // 从本地储存中获取搜索组件
-        return JSON.parse(window.localStorage["componentsStorage"])
+        let sources = {}
+        let componentsStorage = JSON.parse(window.localStorage["componentsStorage"]?window.localStorage["componentsStorage"]:"[]")
+            sources.componentsStorage = componentsStorage
+            sources.userComponents = {}
+            console.log('load components', componentsStorage.name);
+            let userComponentsHashAddr = JSON.parse(window.localStorage["userComponentsHash"]?window.localStorage["userComponentsHash"]:"[]")
+            if (userComponentsHashAddr == null || userComponentsHashAddr.legth == 0) {
+                console.log('components load complated', sources);
+                return
+            }
+            for (let hash of userComponentsHashAddr) {
+                let userComponents = JSON.parse(window.localStorage[hash])
+                sources.userComponents[hash] = userComponents
+                console.log('load components', userComponents.name);
+            }
+            console.log('components load complated', sources);
+        return sources
     },
-    getSearchComponents: function() {
-        return uAnimeCore.components == [] ? null : uAnimeCore.components
+    getSearchSources: function(update) {
+        if (uAnimeCore.sources.componentsStorage.legth == 0 ||
+            uAnimeCore.sources.userComponents.legth == 0) {
+            uAnimeCore.sources = uAnimeCore.loadSearchSources()
+        }
+        if(update && update != undefined) {
+            uAnimeCore.sources = uAnimeCore.loadSearchSources()
+        }
+        return uAnimeCore.sources
     },
     getSearchPageHtml: function (component, word, limit) {
         let url = uAnimeCore.replace(uAnimeCore.getUrl(component), word)
