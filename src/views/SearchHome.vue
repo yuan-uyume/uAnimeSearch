@@ -5,7 +5,7 @@
                 <el-col span="16" style="flex: 1;min-width: 416px;margin: 8px;">
                     <el-row gutter="16" style="min-width: 416px;">
                         <el-col span="18" style="flex: 1;min-width: 350px;">
-                            <el-input type="text" placeholder="搜索内容"></el-input>
+                            <el-input type="text" placeholder="搜索内容" v-model="searchValue"></el-input>
                         </el-col>
                         <el-col span="6" style="flex: 0;min-width: 50px;">
                             <el-button>搜索</el-button>
@@ -23,7 +23,7 @@
                         :render-after-expand="false" show-checkbox />
                 </el-col>
                 <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="10">
-                    <el-input type="text" placeholder="筛选内容..."></el-input>
+                    <el-input type="text" placeholder="筛选内容..." v-model="f"></el-input>
                 </el-col>
                 <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="7">
                     <el-button>筛选</el-button>
@@ -78,8 +78,12 @@ export default {
                         url: "#"
                     }
                 ]
-            }]
+            }],
+            searchComponents:[]
         }
+    },
+    mounted() {
+        this.searchComponents = this.uCore.getSearchComponents()
     }
 }
 </script>
