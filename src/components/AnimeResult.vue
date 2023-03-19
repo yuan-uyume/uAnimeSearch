@@ -4,7 +4,7 @@
             <el-col span="6" style="min-width: 200px;padding-right: 18px;">
                 <div>
                     <a :href="item.url">
-                        <img :src="item.image" :alt="item.title">
+                        <img :src="getUrl(item.image)" :alt="item.title">
                     </a>
                 </div>
             </el-col>
@@ -35,7 +35,8 @@
     </div>
 </template>
 
-<script>
+<script type="moudle">
+// import { createRequire } from 'module';
 export default {
     props: {
         data: {
@@ -44,6 +45,17 @@ export default {
                 return []
             }
         }
+    },
+    methods: {
+        getUrl(url) {
+            if (url.startsWith("http")) {
+                return url
+            } else if (url.startsWith("@")) {
+                return require(url.substring(1, url.length))
+            } else {
+                return "http://" + url
+            }
+        } 
     }
 }
 </script>
