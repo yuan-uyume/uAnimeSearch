@@ -1,3 +1,5 @@
+import uExt from './uAnimeEx.js'
+
 const uAnimeCore = {
     version: "0.0.1",
     sources: [],
@@ -64,6 +66,16 @@ const uAnimeCore = {
             }
             console.log('components load complated', sources);
         return sources
+    },
+    saveSearchSources: function (data) {
+        let key = []
+        for(let d of data) {
+            let {m , ...obj} = d
+            d.md5 = uExt.md5(obj)
+            key.push(d.md5)
+            window.localStorage[d.md5] = JSON.stringify(d)
+        }
+        window.localStorage["userComponentsHash"] = JSON.stringify(key)
     },
     getSearchSources: function(update) {
         if (uAnimeCore.sources.componentsStorage.legth == 0 ||

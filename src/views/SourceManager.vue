@@ -9,6 +9,9 @@
                 <el-button style="margin-left: 16px;" type="success" @click="submitUpload">
                     加载搜索源
                 </el-button>
+                <el-button style="margin-left: 16px;" type="success" @click="saveData">
+                    保存配置
+                </el-button>
                 <template #tip>
                     <div class="el-upload__tip text-red">
                         限制选择一个文件，格式为json。
@@ -22,13 +25,30 @@
                     <span class="custom-tree-node">
                         <span>{{ data.name }}</span>
                         <span style="float: right;">
-                            <a @click="append(data)"> Append </a>
-                            <a style="margin-left: 8px" @click="remove(node, data)"> Delete </a>
+                            <a @click="{dialogVisible = !dialogVisible;form = data;
+                            }" v-if="data.children"> 编辑 </a>
+                            <a style="margin-left: 8px" @click="remove(node, data)"> 删除 </a>
                         </span>
                     </span>
                 </template>
             </el-tree>
         </div>
+        <el-dialog v-model="dialogVisible" title="分组" width="30%" :before-close="handleClose">
+            <el-input type="text" v-model="form.name" placeholder="请输入名称">
+                <template #prepend>名称</template>
+            </el-input>
+            <el-input type="text" style="margin-top: 18px;" v-model="form.id" placeholder="请输入ID">
+                <template #prepend>ID</template>
+            </el-input>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="dialogVisible = false">取消</el-button>
+                    <el-button type="primary" @click="append">
+                        确定
+                    </el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -50,7 +70,9 @@ export default {
         return {
             file: null,
             loadData: [],
-            sources: []
+            sources: [],
+            dialogVisible: false,
+            form: {name: "", id: ""}
         }
     },
     created() {
@@ -63,11 +85,11 @@ export default {
     watch: {
         loadData(loadData) {
             let data = this.toRaw(loadData)
-            console.log("loadData", data);
+            console.log("loadData", data)
             let sources = []
             for (let key in data) {
                 let obj = data[key]
-                console.log("obj", obj);
+                console.log("obj", obj)
                 let { rules, ...o } = obj
                 let oobj = {
                     children: rules,
@@ -98,7 +120,50 @@ export default {
             this.uExt.loadFormFile(this.file.raw, (data) => {
                 console.log("loadFormFile", data)
                 this.$refs.upload.clearFiles()
+                this.loadData = this.uCore.getSearchSources(true).userComponents
             })
+        },
+        saveData() {
+            let data = this.toRaw(this.sources)
+            console.log("saveData...", data)
+            let sources = []
+            for (let key in data) {
+                let obj = data[key]
+                console.log("obj", obj)
+                let { children, ...o } = obj
+                let oobj = {
+                    rules: children,
+                    ...o
+                }
+                sources.push(oobj)
+            }
+            console.log("saveData...end", sources)
+            this.uCore.saveSearchSources(sources)
+            this.loadData = this.uCore.getSearchSources(true).userComponents
+        },
+        append(data) {
+            // const newChild = {
+            //     id: "uyume_like",
+            //     md5: "be71f5affe6f36121ec20fb675e97481",
+            //     name: "uyume_like",
+            //     url: ""
+            // }
+            // if (!data.children) {
+            //     data.children = []
+            // }
+            // data.children.push(newChild)
+            // this.sources = [...this.sources]
+            if(this.sources.findIndex((d) => {return d.id == this.form.id && d.md5 != this.form.md5}) == -1) {
+                this.uExt.updateMd5(this.form)
+            }
+            this.dialogVisible = false
+        },
+        remove(node, data) {
+            const parent = node.parent
+            const children = parent.data.children || parent.data
+            const index = children.findIndex((d) => d.md5 === data.md5)
+            children.splice(index, 1)
+            // this.sources = [...this.sources]
         }
     },
 }

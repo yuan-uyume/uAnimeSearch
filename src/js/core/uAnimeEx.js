@@ -75,6 +75,11 @@ const uAnimeEx = {
     },
     md5: function (obj) {
         return MD5.hex_md5(JSON.stringify(obj))
+    },
+    updateMd5: function (data) {
+        let { md5, ...obj } = data
+        data.md5 = uAnimeEx.md5(obj)
+        return data
     }
 }
 
