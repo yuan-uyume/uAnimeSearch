@@ -11,48 +11,53 @@ const uAnimeEx = {
         };
         reader.readAsText(file)
     },
-    loadFormUrl: function (url, callback) {
-        fetch(url).then(res => {
-            let txt = res.text()
-            console.log("loadFormUrl: ", txt);
-            return txt
-        })
-            .then(txt => JSON.parse(txt))
-            .then(json => uAnimeEx.loadFormJson(json, callback))
-            .error(e => {
-                console.log(e);
+    loadFormUrl: function (url, callback, sys) {
+        fetch(url).then(res => res.text())
+            .then(txt => {
+                let json = JSON.parse(txt);
+                console.log("loadFormUrl: ", json)
+                uAnimeEx.loadFormJson(json, callback, sys)})
+            .catch(e => {
+                console.log("fetch error:", e);
             })
     },
-    loadFormJson: function (json, callback) {
+    loadFormJson: function (json, callback, sys) {
+        console.log("loadFormJson: ", json)
         if (!uAnimeEx.verifyMd5(json)) {
             console.log(json.id, json.name, "验证md5失败停止导入");
             return
-        } else if (!uAnimeEx.verifyMd5Arr(json.rules)) {
+        }
+        if (!uAnimeEx.verifyMd5Arr(json.rules)) {
             return
         }
-        let userComponentsHashAddr = JSON.parse(window.localStorage["userComponentsHash"] ? window.localStorage["userComponentsHash"] : "[]")
-        let ohash = json.md5, flag = false
-        for (let hash of userComponentsHashAddr) {
-            let userComponent = JSON.parse(window.localStorage[hash])
-            if (json.id == userComponent.id) {
-                // 替换
-                ohash = hash
-                flag = true
+        if (sys) {
+            window.localStorage["componentsStorage"] = JSON.stringify(json)
+            callback(json)
+        } else {
+            let userComponentsHashAddr = JSON.parse(window.localStorage["userComponentsHash"] ? window.localStorage["userComponentsHash"] : "[]")
+            let ohash = json.md5, flag = false
+            for (let hash of userComponentsHashAddr) {
+                let userComponent = JSON.parse(window.localStorage[hash])
+                if (json.id == userComponent.id) {
+                    // 替换
+                    ohash = hash
+                    flag = true
+                }
             }
-        }
-        if (json.md5 != ohash) {
-            delete window.localStorage[ohash]
-            let index = userComponentsHashAddr.indexOf(ohash);
-            if (index > -1) {
-                userComponentsHashAddr.splice(index, 1);
+            if (json.md5 != ohash) {
+                delete window.localStorage[ohash]
+                let index = userComponentsHashAddr.indexOf(ohash);
+                if (index > -1) {
+                    userComponentsHashAddr.splice(index, 1);
+                }
             }
+            if (!(flag && json.md5 == ohash)) {
+                window.localStorage[json.md5] = JSON.stringify(json)
+                userComponentsHashAddr.push(json.md5)
+                window.localStorage["userComponentsHash"] = JSON.stringify(userComponentsHashAddr)    
+            }
+            callback(json)
         }
-        if (!(flag && json.md5 == ohash)) {
-            window.localStorage[json.md5] = JSON.stringify(json)
-            userComponentsHashAddr.push(json.md5)
-            window.localStorage["userComponentsHash"] = JSON.stringify(userComponentsHashAddr)    
-        }
-        callback(json)
     },
     verifyMd5Arr: function (arr) {
         let flag = true

@@ -10,7 +10,7 @@
                     加载搜索源
                 </el-button>
                 <el-button style="margin-left: 16px;" type="success" @click="saveData">
-                    保存配置
+                    保存配置更改
                 </el-button>
                 <template #tip>
                     <div class="el-upload__tip text-red">
@@ -20,12 +20,13 @@
             </el-upload>
         </div>
         <div>
-            <el-tree :data="showSources" show-checkbox node-key="md5" default-expand-all :expand-on-click-node="false">
+            <el-tree :data="showSources" node-key="md5" default-expand-all :expand-on-click-node="false">
                 <template #default="{ node, data }" style="margin: 12px 0;">
                     <span class="custom-tree-node">
-                        <span>{{ data.name }}</span>
-                        <span style="float: right;">
-                            <a @click="{dialogVisible = !dialogVisible;form = data;
+                        <span :style="{ color: data.sys ? 'darkseagreen' : '' }">{{ data.name }}</span>
+                        <span style="float: right;" v-if="!data.sys">
+                            <a @click="{
+                                dialogVisible = !dialogVisible; form = data;
                             }" v-if="data.children"> 编辑 </a>
                             <a style="margin-left: 8px" @click="remove(node, data)"> 删除 </a>
                         </span>
@@ -72,11 +73,11 @@ export default {
             loadData: [],
             sources: [],
             dialogVisible: false,
-            form: {name: "", id: ""}
+            form: { name: "", id: "" }
         }
     },
     created() {
-        this.loadData = this.uCore.getSearchSources(true).userComponents
+        this.getLoadData()
     },
     mounted() {
         console.log(this.sources);
@@ -106,6 +107,16 @@ export default {
         }
     },
     methods: {
+        getLoadData() {
+            let data = this.uCore.getSearchSources(true)
+            console.log("created data,", data);
+            this.loadData = data.userComponents
+            data.componentsStorage.sys = true
+            for (let o of data.componentsStorage.rules) {
+                o.sys = true
+            }
+            this.loadData[data.componentsStorage.md5] = data.componentsStorage
+        },
         handleExceed(files) {
             this.$refs.upload.clearFiles()
             this.file = files[0]
@@ -117,10 +128,20 @@ export default {
         },
         submitUpload() {
             console.log(this.file);
+            let loading = this.$loading({
+                lock: true,
+                text: 'Loading',
+                background: 'rgba(0, 0, 0, 0.7)',
+            })
             this.uExt.loadFormFile(this.file.raw, (data) => {
                 console.log("loadFormFile", data)
                 this.$refs.upload.clearFiles()
-                this.loadData = this.uCore.getSearchSources(true).userComponents
+                this.getLoadData()
+                loading.close()
+                this.$message({
+                    message: '加载搜索源成功',
+                    type: 'success',
+                })
             })
         },
         saveData() {
@@ -135,11 +156,17 @@ export default {
                     rules: children,
                     ...o
                 }
-                sources.push(oobj)
+                if (!oobj.sys) {
+                    sources.push(oobj)
+                }
             }
             console.log("saveData...end", sources)
             this.uCore.saveSearchSources(sources)
-            this.loadData = this.uCore.getSearchSources(true).userComponents
+            this.getLoadData()
+            this.$message({
+                    message: '保存搜索源更改成功',
+                    type: 'success',
+                })
         },
         append(data) {
             // const newChild = {
@@ -153,7 +180,7 @@ export default {
             // }
             // data.children.push(newChild)
             // this.sources = [...this.sources]
-            if(this.sources.findIndex((d) => {return d.id == this.form.id && d.md5 != this.form.md5}) == -1) {
+            if (this.sources.findIndex((d) => { return d.id == this.form.id && d.md5 != this.form.md5 }) == -1) {
                 this.uExt.updateMd5(this.form)
             }
             this.dialogVisible = false
