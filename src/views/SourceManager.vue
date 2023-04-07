@@ -53,7 +53,7 @@
     </div>
 </template>
 
-<style>
+<style scoped>
 .custom-tree-node {
     flex: 1;
     display: flex;

@@ -5,15 +5,16 @@
                 <el-col span="16" style="flex: 1;min-width: 416px;margin: 8px;">
                     <el-row gutter="16" style="min-width: 416px;">
                         <el-col span="18" style="flex: 1;min-width: 350px;">
-                            <el-input type="text" placeholder="搜索内容" v-model="searchValue"></el-input>
+                            <el-input @keyup.enter.native="onSearch" type="text" placeholder="搜索内容"
+                                v-model="search.value"></el-input>
                         </el-col>
                         <el-col span="6" style="flex: 0;min-width: 50px;">
-                            <el-button>搜索</el-button>
+                            <el-button @click="onSearch">搜索</el-button>
                         </el-col>
                     </el-row>
                 </el-col>
                 <el-col span="8" style="flex: 0;min-width: 230px;margin: 8px;">
-                    <el-button>搜索源</el-button>
+                    <el-button @click="drawer = true">搜索源</el-button>
                     <el-button @click="isMore = !isMore">更多</el-button>
                 </el-col>
             </el-row>
@@ -42,13 +43,36 @@
             </el-row>
         </div>
         <div style="position: fixed;bottom: 65px;z-index: 2;">
-            <el-pagination style="position: absolute;bottom: 0;" :current-page="page.current" :page-size="page.size" :page-sizes="[10, 20, 30, 50]"
-                :disabled="disabled" background
+            <el-pagination style="position: absolute;bottom: 0;" :current-page="page.current" :page-size="page.size"
+                :page-sizes="[10, 20, 30, 50]" :disabled="disabled" background
                 layout="total, sizes, prev, pager, next, jumper" :total="pageTotal" @size-change="handleSizeChange"
                 @current-change="handleCurrentChange" />
         </div>
+        <el-drawer v-model="drawer" title="搜索源启用配置" :before-close="handleDrawerClose">
+            <div>
+                <el-tree ref="sourcesTree" show-checkbox :data="sources" node-key="md5" default-expand-all
+                    :expand-on-click-node="false">
+                    <template #default="{ node, data }" style="margin: 12px 0;">
+                        <span class="custom-tree-node">
+                            <span :style="{ color: data.sys ? 'darkseagreen' : '' }">{{ data.name }}</span>
+                        </span>
+                    </template>
+                </el-tree>
+            </div>
+        </el-drawer>
     </div>
 </template>
+
+<style scoped>
+.custom-tree-node {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 16px;
+    padding-right: 8px;
+}
+</style>
 
 <script>
 import AnimeResult from '../components/AnimeResult.vue';
@@ -57,17 +81,36 @@ export default {
     data() {
         return {
             isMore: false,
+            drawer: false,
             treeValue: '',
             treeData: [],
             searchData: [],
             showSearchData: [{
-                title: "biao ti",
+                title: "标 题",
                 url: "https://www.baidu.com",
                 image: "@/icons/image1.png",
-                info: "this is a anime search result",
+                info: "这是一个动漫搜索结果展示",
                 eps: [
                     {
                         title: '1',
+                        url: "#"
+                    },{
+                        title: '2',
+                        url: "#"
+                    },{
+                        title: '3',
+                        url: "#"
+                    },{
+                        title: '4',
+                        url: "#"
+                    },{
+                        title: '5',
+                        url: "#"
+                    },{
+                        title: '6',
+                        url: "#"
+                    },{
+                        title: '7',
                         url: "#"
                     }
                 ]
@@ -75,7 +118,11 @@ export default {
             searchComponents: [],
             page: {
                 size: 20,
-                current:1
+                current: 1
+            },
+            search: {
+                value: '',
+                components: []
             }
         }
     },
@@ -84,20 +131,81 @@ export default {
             return this.showSearchData.length
         }
     },
+    watch: {
+        searchComponents(searchComponents) {
+            let data = this.toRaw(searchComponents)
+            console.log("searchComponents", data)
+            let sources = []
+            for (let key in data) {
+                let obj = data[key]
+                console.log("obj", obj)
+                let { rules, ...o } = obj
+                let oobj = {
+                    children: rules,
+                    ...o
+                }
+                sources.push(oobj)
+            }
+            console.log("sources", sources)
+            this.sources = sources
+        }
+    },
+    created() {
+        this.getSearchComponents()
+    },
     mounted() {
-        this.searchComponents = this.uCore.getSearchSources()
+        this.$nextTick(this.getQueryAndSearch)
     },
     methods: {
         filterSearchResult() {
             if (this.filterValue && this.treeValue) {
                 this.showSearchData = this.searchData.filter(d => {
-                    retrun ((d.title.find(this.filterValue) || 
-                            d.info.find(this.filterValue) ||
-                            d.tag.find(this.filterValue)) && 
-                            d.source == this.treeValue)
+                    retrun((d.title.find(this.filterValue) ||
+                        d.info.find(this.filterValue) ||
+                        d.tag.find(this.filterValue)) &&
+                        d.source == this.treeValue)
                 })
             }
             this.showSearchData = this.searchData
+        },
+        onSearch() {
+            console.log('start search ... value:', this.toRaw(this.search))
+            let searchValue = this.search.value.trim()
+        },
+        getSearchComponents() {
+            let data = this.uCore.getSearchSources(true)
+            console.log("created data,", data);
+            this.searchComponents = data.userComponents
+            data.componentsStorage.sys = true
+            for (let o of data.componentsStorage.rules) {
+                o.sys = true
+            }
+            this.searchComponents[data.componentsStorage.md5] = data.componentsStorage
+        },
+        handleDrawerClose() {
+            let selectValue = this.$refs.sourcesTree.getCheckedNodes(true, false)
+            selectValue = this.toRaw(selectValue)
+            console.log("selectValue :", selectValue);
+            this.search.components = selectValue
+            this.drawer = false
+        },
+        getQueryAndSearch() {
+            let params = this.$route.query
+            console.log('path params: ', params);
+            if ('value' in params && params.value.trim() != '') {
+                this.search.value = params.value.trim()
+                // 全选搜索组件
+                if (params.type && params.type == 0) {
+                    this.drawer = true
+                    this.$nextTick(() => {
+                        this.$refs.sourcesTree.setCheckedNodes(this.sources)
+                        this.$nextTick(() => {
+                            this.handleDrawerClose()
+                            this.onSearch()
+                        })
+                    })
+                }
+            }
         }
     }
 }

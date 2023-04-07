@@ -17,7 +17,7 @@ const uAnimeCore = {
     initCore: function () {
         try {
             uAnimeCore.sources = uAnimeCore.loadSearchSources()
-            console.log(uAnimeCore);
+            console.log('uAnimeCore init', uAnimeCore);
             return true
         } catch (e) {
             throw e

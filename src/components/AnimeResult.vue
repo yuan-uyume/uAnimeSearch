@@ -4,27 +4,33 @@
             <el-col span="6" style="min-width: 200px;max-width: 200px;padding-right: 18px;max-height: 200px;">
                 <div class="on-border">
                     <a :href="item.url" style="position: relative;bottom:7px;width: 100%;">
-                        <img style="width: 112%;position: relative;left: -6%;top:7px" :src="getUrl(item.image)" :alt="item.title">
+                        <img style="width: 112%;position: relative;left: -6%;top:7px" :src="getUrl(item.image)"
+                            :alt="item.title">
                     </a>
                 </div>
             </el-col>
             <el-col span="15" style="min-width: 600px;">
                 <div>
                     <div style="height: 36px;overflow-x: hidden;overflow-y: auto;">
-                        <a :href="item.url" target="_blank" rel="noopener noreferrer">
+                        <el-link style="color: #00bd7e" :underline="false" :href="item.url" target="_blank" rel="noopener noreferrer">
                             <h2>{{ item.title }}</h2>
-                        </a>
+                        </el-link>
                     </div>
                     <div style="height: 100px;overflow-x: hidden;overflow-y: auto;">
-                        <div>
-                            tag
+                        <div style="height: 24px;">
+                            <span class="result-item-tags" v-for="item, index in item.tags"
+                                :key="item.index">{{ item }}</span>
                         </div>
                         <div>
                             {{ item.info }}
                         </div>
                     </div>
                     <div style="height: 60px;overflow-x: hidden;overflow-y: auto;">
-                        eps
+                        <span class="result-item-eps" v-for="item, index in item.eps" :key="item.index">
+                            <el-link :href="item.url">
+                                <el-button text bg>{{ item.title }}</el-button>
+                            </el-link>
+                        </span>
                     </div>
                 </div>
             </el-col>
@@ -35,13 +41,21 @@
     </div>
 </template>
 
+<style scoped>
+.result-item-tags{
+    margin-right: 5px;
+}
+.result-item-eps{
+    margin-right: 8px;
+}
+</style>
+
 <script type="moudle">
-// import { createRequire } from 'module';
 export default {
     props: {
         data: {
             type: Array,
-            default () {
+            default() {
                 return []
             }
         }
@@ -55,7 +69,7 @@ export default {
             } else {
                 return "http://" + url
             }
-        } 
+        }
     }
 }
 </script>
@@ -68,7 +82,7 @@ export default {
     box-shadow: 0px 0px 12px rgba(0, 0, 0, .12);
 }
 
-.result-item:hover{
+.result-item:hover {
     box-shadow: 0px 0px 15px rgba(0, 0, 0, .20);
 }
 
@@ -79,6 +93,7 @@ export default {
     border-radius: 5px;
     border: 3px solid whitesmoke
 }
+
 .on-border:hover {
     border: 3px solid rgba(114, 196, 160, .12);
     box-shadow: 0px 0px 16px rgba(114, 196, 160, .12);
@@ -88,8 +103,7 @@ export default {
     transition: all 1s;
 }
 
-.on-border:hover img{
+.on-border:hover img {
     transform: scale(1.1)
 }
-
 </style>
