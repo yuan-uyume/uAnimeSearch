@@ -45,8 +45,8 @@
         <div style="position: fixed;bottom: 65px;z-index: 2;">
             <el-pagination style="position: absolute;bottom: 0;" :current-page="page.current" :page-size="page.size"
                 :page-sizes="[10, 20, 30, 50]" :disabled="disabled" background
-                layout="total, sizes, prev, pager, next, jumper" :total="pageTotal" @size-change="handleSizeChange"
-                @current-change="handleCurrentChange" />
+                layout="total, sizes, prev, pager, next, jumper" :total="pageTotal" @size-change="genPageData"
+                @current-change="changePage" />
         </div>
         <el-drawer v-model="drawer" title="搜索源启用配置" :before-close="handleDrawerClose">
             <div>
@@ -255,7 +255,7 @@ export default {
         genPageData(pageSize) {
             // 将searchData 拍pageSize的大小切分为 pageData （二维数组）
             // this.page.pageData = [[], [], []]
-            
+            this.changePage(1)
         },
         changePage(page) {
             // 点击第几页就是将showSearchData赋值
