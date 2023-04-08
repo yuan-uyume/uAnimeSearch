@@ -118,7 +118,8 @@ export default {
             searchComponents: [],
             page: {
                 size: 20,
-                current: 1
+                current: 1,
+                pageData: []
             },
             search: {
                 value: '',
@@ -174,9 +175,25 @@ export default {
             console.log('start search ... value:', searchData)
             let searchValue = searchData.value.trim()
             let sources = searchData.components
-            this.uCore.search(sources, searchValue, this.page.size, data => {
-                console.log('get search data:', data);
+            if (searchValue == '') {
+                this.$message({
+                    type: "info",
+                    message: "搜索内容不能为空"
+                })
+                return
+            }
+            let size = this.page.size
+            new Promise(function (resolve, reject) {
+                chrome.runtime.sendMessage({
+                    type: 'search',
+                    args: [sources, searchValue, size]
+                }, data => {
+                    resolve(data)
+                })
+            }).then(res => {
+        
             })
+
         },
         getSearchComponents() {
             let data = this.uCore.getSearchSources(true)
@@ -188,25 +205,27 @@ export default {
             }
             this.searchComponents[data.componentsStorage.md5] = data.componentsStorage
         },
-        handleDrawerClose() {
+        handleDrawerClose(ignore) {
             let selectValue = this.$refs.sourcesTree.getCheckedNodes(true, false)
             selectValue = this.toRaw(selectValue)
             console.log("selectValue :", selectValue);
-            this.search.components = selectValue    
+            this.search.components = selectValue
             let componentsHashSet = selectValue.map((item, index) => {
                 return item.md5
             })
-            console.log('save enableComponents hashset', componentsHashSet);
-            window.localStorage['enableComponents'] = JSON.stringify(componentsHashSet)
-            this.drawer = false
-            this.$message({
+            if (ignore != true) {
+                console.log('save enableComponents hashset', componentsHashSet);
+                window.localStorage['enableComponents'] = JSON.stringify(componentsHashSet)
+                this.$message({
                     type: 'success',
                     message: '保存搜索源启用配置成功...'
-            })
+                })
+            }
+            this.drawer = false
         },
         loadEnableComponentsAndSelect() {
             this.drawer = true
-            let enableComponents = JSON.parse(window.localStorage['enableComponents']? window.localStorage['enableComponents'] : [])
+            let enableComponents = JSON.parse(window.localStorage['enableComponents'] ? window.localStorage['enableComponents'] : [])
             this.$nextTick(() => {
                 this.$refs.sourcesTree.setCheckedKeys(enableComponents)
                 this.$message({
@@ -226,12 +245,18 @@ export default {
                     this.$nextTick(() => {
                         this.$refs.sourcesTree.setCheckedNodes(this.sources)
                         this.$nextTick(() => {
-                            this.handleDrawerClose()
+                            this.handleDrawerClose(true)
                             this.onSearch()
                         })
                     })
                 }
             }
+        },
+        genPageData(pageSize) {
+            // 将searchData 拍pageSize的大小切分为 pageData （二维数组）
+            // this.page.pageData = [[], [], []]
+            // 点击第几页就是将showSearchData赋值
+            // this.showSearchData = this.page.pageData[currentPage]
         }
     }
 }

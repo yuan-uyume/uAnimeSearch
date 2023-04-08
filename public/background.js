@@ -1,16 +1,16 @@
 'use strict';
+import uAnimeCore from "../src/js/core/uAnimeCore";
+const methods = {
+  search: async (request, sender, sendResponse) => {
+    uAnimeCore.search(...(request.args), data => {
+      sendResponse(data)
+    })
+  }
+}
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'GREETINGS') {
-    const message = `Hi ${
-      sender.tab ? 'Con' : 'Pop'
-    }, my name is Bac. I am from Background. It's great to hear from you.`;
-
-    // Log message coming from the `request` parameter
-    console.log(request.payload.message);
-    // Send a response message
-    sendResponse({
-      message,
-    });
-  }
+  console.log("background onMessage: ", request, sender);
+  // methods[request.type](request, sender, sendResponse)
+  sendResponse("ASDASDSAD")
+  return true;
 });

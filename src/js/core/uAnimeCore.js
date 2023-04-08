@@ -6,6 +6,9 @@ const uAnimeCore = {
     log: function (component, ...txt) {
         console.log(component.name + "(" + component.md5 + ")", ...txt);
     },
+    error: function (component, ...txt) {
+        console.error(component.name + "(" + component.md5 + ")", ...txt);
+    },
     replace(txt, ...data) {
         let t = txt, i = 1
         for (let s of data) {
@@ -26,8 +29,22 @@ const uAnimeCore = {
     },
     search: function(components, word, limit, callback) {
         let data = []
-        let collectComponentsResult = function() {
+        let complated = []
+        let collectComponentsResult = function(res) {
+            if (res.type == 0) {
+                uAnimeCore.log(res.component, res.msg, res.data)
+            } else {
+                uAnimeCore.error(res.component, res.msg, res.data)
+            }
+            if (res.type == 0) {
+                data.push[res.data]
+            }
+            complated.push[res.component.md5]
+            if (complated.length >= components.legth) {
+                callback({
 
+                })
+            }
         }
         if (uAnimeCore.sources.length < 1) {
             uAnimeCore.initCore()
@@ -41,19 +58,29 @@ const uAnimeCore = {
         
     },
     searchAnimeHtml: function (component, word, limit, callback) {
-        let page = uAnimeCore.getSearchPageHtml(component, word, limit) // total pageNum limit
-        if (page.pageNum == null || page.pageNum == undefined) {
-            page.pageNum = uAnimeCore.getPageNum(total, limit)
-        }
-        uAnimeCore.log(component, "search word: " + word, page)
-        if (page.pageNum == null || page.pageNum == undefined || page.pageNum < 1) {
+        try {
+            let page = uAnimeCore.getSearchPageHtml(component, word, limit) // total pageNum limit
+            if (page.pageNum == null || page.pageNum == undefined) {
+                page.pageNum = uAnimeCore.getPageNum(total, limit)
+            }
+            uAnimeCore.log(component, "search word: " + word, page)
+            if (page.pageNum == null || page.pageNum == undefined || page.pageNum < 1) {
+                return callback({
+                    type: 1,
+                    component: component,
+                    msg: "获取番剧页数失败，番剧消失在了异次元",
+                    data: []
+                })
+            }
+            uAnimeCore.getSearchResultHtml(component, word, 1, limit, page, data, callback)
+        } catch (e) {
             return callback({
                 type: 1,
-                msg: "获取番剧页数失败，番剧消失在了异次元",
+                msg: e,
+                component: component,
                 data: []
             })
         }
-        uAnimeCore.getSearchResultHtml(component, word, 1, limit, page, data, callback)
     },
     loadSearchSources: function () {
         // 从本地储存中获取搜索组件
@@ -108,6 +135,10 @@ const uAnimeCore = {
                 this.log(component, txt)
                 return txt
             })
+            .catch(e =>{
+                uAnimeCore.error(component, e)
+                return null
+            })
     },
     getSearchResultHtml: function (component, word, currentPage, limit, page, data, callback) {
         uAnimeCore.log(component, uAnimeCore.replace("search word {1} page {2} (l: {3})", word, currentPage, limit))
@@ -118,6 +149,7 @@ const uAnimeCore = {
             callback({
                 type: 0,
                 msg: "搜索成功！",
+                component: component,
                 data: data
             })
         }
