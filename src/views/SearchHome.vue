@@ -255,6 +255,9 @@ export default {
         genPageData(pageSize) {
             // 将searchData 拍pageSize的大小切分为 pageData （二维数组）
             // this.page.pageData = [[], [], []]
+            
+        },
+        changePage(page) {
             // 点击第几页就是将showSearchData赋值
             // this.showSearchData = this.page.pageData[currentPage]
         }
