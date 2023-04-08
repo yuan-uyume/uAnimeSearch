@@ -24,13 +24,21 @@ const uAnimeCore = {
         }
         return false
     },
-    searchAnime: function (component, word, limit, callback) {
-        if (uAnimeCore.components.length < 1) {
+    search: function(components, word, limit, callback) {
+        let data = []
+        let collectComponentsResult = function() {
+
+        }
+        if (uAnimeCore.sources.length < 1) {
             uAnimeCore.initCore()
         }
-        if (component.search.api) { } else {
-            uAnimeCore.searchAnimeHtml(component, word, limit, callback)
+        for (let cp of components) {
+            cp.search.api ? uAnimeCore.searchAnime(cp, word, limit, collectComponentsResult) : 
+            uAnimeCore.searchAnimeHtml(cp, word, limit, collectComponentsResult)
         }
+    },
+    searchAnime: function (component, word, limit, callback) {
+        
     },
     searchAnimeHtml: function (component, word, limit, callback) {
         let page = uAnimeCore.getSearchPageHtml(component, word, limit) // total pageNum limit

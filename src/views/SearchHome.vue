@@ -94,22 +94,22 @@ export default {
                     {
                         title: '1',
                         url: "#"
-                    },{
+                    }, {
                         title: '2',
                         url: "#"
-                    },{
+                    }, {
                         title: '3',
                         url: "#"
-                    },{
+                    }, {
                         title: '4',
                         url: "#"
-                    },{
+                    }, {
                         title: '5',
                         url: "#"
-                    },{
+                    }, {
                         title: '6',
                         url: "#"
-                    },{
+                    }, {
                         title: '7',
                         url: "#"
                     }
@@ -154,6 +154,7 @@ export default {
         this.getSearchComponents()
     },
     mounted() {
+        this.loadEnableComponentsAndSelect()
         this.$nextTick(this.getQueryAndSearch)
     },
     methods: {
@@ -169,8 +170,13 @@ export default {
             this.showSearchData = this.searchData
         },
         onSearch() {
-            console.log('start search ... value:', this.toRaw(this.search))
-            let searchValue = this.search.value.trim()
+            let searchData = this.toRaw(this.search)
+            console.log('start search ... value:', searchData)
+            let searchValue = searchData.value.trim()
+            let sources = searchData.components
+            this.uCore.search(sources, searchValue, this.page.size, data => {
+                console.log('get search data:', data);
+            })
         },
         getSearchComponents() {
             let data = this.uCore.getSearchSources(true)
@@ -186,8 +192,29 @@ export default {
             let selectValue = this.$refs.sourcesTree.getCheckedNodes(true, false)
             selectValue = this.toRaw(selectValue)
             console.log("selectValue :", selectValue);
-            this.search.components = selectValue
+            this.search.components = selectValue    
+            let componentsHashSet = selectValue.map((item, index) => {
+                return item.md5
+            })
+            console.log('save enableComponents hashset', componentsHashSet);
+            window.localStorage['enableComponents'] = JSON.stringify(componentsHashSet)
             this.drawer = false
+            this.$message({
+                    type: 'success',
+                    message: '保存搜索源启用配置成功...'
+            })
+        },
+        loadEnableComponentsAndSelect() {
+            this.drawer = true
+            let enableComponents = JSON.parse(window.localStorage['enableComponents']? window.localStorage['enableComponents'] : [])
+            this.$nextTick(() => {
+                this.$refs.sourcesTree.setCheckedKeys(enableComponents)
+                this.$message({
+                    type: 'success',
+                    message: '加载搜索源启用配置成功...'
+                })
+                this.handleDrawerClose()
+            })
         },
         getQueryAndSearch() {
             let params = this.$route.query
@@ -196,7 +223,6 @@ export default {
                 this.search.value = params.value.trim()
                 // 全选搜索组件
                 if (params.type && params.type == 0) {
-                    this.drawer = true
                     this.$nextTick(() => {
                         this.$refs.sourcesTree.setCheckedNodes(this.sources)
                         this.$nextTick(() => {
