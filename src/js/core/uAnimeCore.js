@@ -185,13 +185,16 @@ const uAnimeCore = {
             for (let key of ['title', 'image', 'info', 'url']) {
                 parseItem[key] = uAnimeCore.parseDom(item, component.htmlDataTrans.anime[key])
                 if (parseItem[key]) {
-                    parseItem[key] = parseItem[key].replaceAll("\t", "").replaceAll("/", "")
                     if (['url', 'image'].includes(key)) {
-                        parseItem[key] = parseItem[key].replaceAll(chrome.runtime.getURL("/"), '')
-                        if (!parseItem[key].startsWith("/")) {
-                            parseItem[key] = '/' + parseItem[key]
+                        if (parseItem[key].startsWith(chrome.runtime.getURL("/"))) {
+                            parseItem[key] = parseItem[key].replaceAll(chrome.runtime.getURL("/"), '')
+                            if (!parseItem[key].startsWith("/")) {
+                                parseItem[key] = '/' + parseItem[key]
+                            }
+                            parseItem[key] = component.search.site + parseItem[key]
                         }
-                        parseItem[key] = component.search.site + parseItem[key]
+                    } else {
+                        parseItem[key] = parseItem[key].replaceAll("\t", "").replaceAll("/", "")
                     }
                 }
             }
