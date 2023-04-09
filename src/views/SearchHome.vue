@@ -199,7 +199,8 @@ export default {
             "search": {
                 "api": false,
                 "site": "http://www.mxdm.cc",
-                "path": "/search/-------------.html?wd={1}"
+                "path": "/search/-------------.html?wd={1}",
+                "page": "/search/{1}----------{2}---.html"
             },
             "htmlDataTrans": {
                 "page": {
@@ -222,35 +223,38 @@ export default {
                 },
                 "anime": {
                     "arr": {
-                        "find": ".searchlist_item"
+                        "find": [".module-search-item"]
                     },
                     "image": {
                         "find": [
-                            ".searchlist_img",
+                            ".module-item-pic",
+                            'img',
                             0
                         ],
-                        "attr": "data-original",
+                        "attr": "data-src",
                         "clean": ""
                     },
                     "title": {
                         "find": [
-                            ".vodlist_title",
+                            "h3",
+                            -1,
                             0
                         ],
-                        "attr": "title",
+                        "attr": "innerText",
                         "clean": ""
                     },
                     "info": {
-                        "find": ".vodlist_sub .hidden_xs",
+                        "find": [".video-info-item", 0],
                         "attr": "innerText",
                         "clean": ""
                     },
                     "url": {
                         "find": [
-                            ".vodlist_title",
+                            "h3",
+                            -1,
                             0
                         ],
-                        "attr": "title",
+                        "attr": "href",
                         "clean": ""
                     },
                     "eps": {

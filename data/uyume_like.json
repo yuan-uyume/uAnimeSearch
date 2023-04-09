@@ -101,7 +101,8 @@
             "search": {
                 "api": false,
                 "site": "http://www.mxdm.cc",
-                "path": "/search/-------------.html?wd={1}"
+                "path": "/search/-------------.html?wd={1}",
+                "page": "/search/{1}----------{2}---.html"
             },
             "htmlDataTrans": {
                 "page": {
