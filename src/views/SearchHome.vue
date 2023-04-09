@@ -182,18 +182,103 @@ export default {
                 })
                 return
             }
-            let size = this.page.size
-            new Promise(function (resolve, reject) {
-                chrome.runtime.sendMessage({
-                    type: 'search',
-                    args: [sources, searchValue, size]
-                }, data => {
-                    resolve(data)
+            if (sources.length <= 0) {
+                this.$message({
+                    type: "info",
+                    message: "搜索源未选择"
                 })
-            }).then(res => {
-        
+                return
+            }
+            let size = this.page.size
+            // this.uCore.search(sources, searchValue, size, (data) => {
+            //     console.log(data);
+            // })
+            let test = [{
+            "name": "MX动漫",
+            "md5": "b4f14530a8abec6609309f647f8d4387",
+            "search": {
+                "api": false,
+                "site": "http://www.mxdm.cc",
+                "path": "/search/-------------.html?wd={1}"
+            },
+            "htmlDataTrans": {
+                "page": {
+                    "total": {
+                        "find": [
+                            "script", 17
+                        ],
+                        "attr": "innerText",
+                        "clean": "(\\d+)"
+                    },
+                    "pageNum": {
+                        "find": [
+                            ".page-next",
+                            1
+                        ],
+                        "attr": "href",
+                        "clean": "(\\d+)"
+                    },
+                    "limit": "10"
+                },
+                "anime": {
+                    "arr": {
+                        "find": ".searchlist_item"
+                    },
+                    "image": {
+                        "find": [
+                            ".searchlist_img",
+                            0
+                        ],
+                        "attr": "data-original",
+                        "clean": ""
+                    },
+                    "title": {
+                        "find": [
+                            ".vodlist_title",
+                            0
+                        ],
+                        "attr": "title",
+                        "clean": ""
+                    },
+                    "info": {
+                        "find": ".vodlist_sub .hidden_xs",
+                        "attr": "innerText",
+                        "clean": ""
+                    },
+                    "url": {
+                        "find": [
+                            ".vodlist_title",
+                            0
+                        ],
+                        "attr": "title",
+                        "clean": ""
+                    },
+                    "eps": {
+                        "arr": {
+                            "find": [
+                                ".content_playlist"
+                            ],
+                            "clean": ""
+                        },
+                        "title": {
+                            "find": [
+                                0
+                            ],
+                            "attr": "innerText",
+                            "clean": ""
+                        },
+                        "url": {
+                            "find": "",
+                            "attr": "href",
+                            "clean": ""
+                        }
+                    }
+                }
+            }
+            }]
+            this.uCore.search(test, searchValue, size, (data) => {
+                console.log(data);
             })
-
         },
         getSearchComponents() {
             let data = this.uCore.getSearchSources(true)

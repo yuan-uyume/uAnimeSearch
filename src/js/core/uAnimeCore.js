@@ -1,13 +1,16 @@
 import uExt from './uAnimeEx.js'
-
+import $ from 'jquery'
 const uAnimeCore = {
     version: "0.0.1",
     sources: [],
     log: function (component, ...txt) {
-        console.log(component.name + "(" + component.md5 + ")", ...txt);
+        console.log(component? component.name + "(" + component.md5 + ")" : "uAnimeCore", ...txt);
     },
     error: function (component, ...txt) {
-        console.error(component.name + "(" + component.md5 + ")", ...txt);
+        console.error(component? component.name + "(" + component.md5 + ")" : "uAnimeCore", ...txt);
+    },
+    debug: function (component, ...txt) {
+        console.debug(component? component.name + "(" + component.md5 + ")" : "uAnimeCore", ...txt);
     },
     replace(txt, ...data) {
         let t = txt, i = 1
@@ -49,6 +52,7 @@ const uAnimeCore = {
         if (uAnimeCore.sources.length < 1) {
             uAnimeCore.initCore()
         }
+        console.log('uCore start search:', word, limit, components)
         for (let cp of components) {
             cp.search.api ? uAnimeCore.searchAnime(cp, word, limit, collectComponentsResult) : 
             uAnimeCore.searchAnimeHtml(cp, word, limit, collectComponentsResult)
@@ -57,14 +61,14 @@ const uAnimeCore = {
     searchAnime: function (component, word, limit, callback) {
         
     },
-    searchAnimeHtml: function (component, word, limit, callback) {
+    searchAnimeHtml: async function (component, word, limit, callback) {
         try {
-            let page = uAnimeCore.getSearchPageHtml(component, word, limit) // total pageNum limit
-            if (page.pageNum == null || page.pageNum == undefined) {
-                page.pageNum = uAnimeCore.getPageNum(total, limit)
+            let page = await uAnimeCore.getSearchPageHtml(component, word, limit) // total pageNum limit
+            if (page && (page.pageNum == undefined || page.pageNum == null)) {
+                page.pageNum = uAnimeCore.getPageNum(page.total, component.htmlDataTrans.page.limit)
             }
             uAnimeCore.log(component, "search word: " + word, page)
-            if (page.pageNum == null || page.pageNum == undefined || page.pageNum < 1) {
+            if (!page || page.pageNum == undefined || page.pageNum == null || page.pageNum < 1) {
                 return callback({
                     type: 1,
                     component: component,
@@ -126,19 +130,26 @@ const uAnimeCore = {
         }
         return uAnimeCore.sources
     },
-    getSearchPageHtml: function (component, word, limit) {
+    getSearchPageHtml:async function (component, word, limit) {
         let url = uAnimeCore.replace(uAnimeCore.getUrl(component), word)
-        uAnimeCore.log(component, uAnimeCore.replace("getSearchPageHtml {1} from {2}", word, url))
-        fetch(url)
-            .then(res => {
-                let txt = res.text()
-                this.log(component, txt)
-                return txt
+        uAnimeCore.log(component, uAnimeCore.replace("getSearchPageHtml word({1}) from {2}", word, url))
+        return new Promise((resole, reject) => {
+            fetch(url)
+            .then(res => res.text())
+            .then(txt => {
+                this.debug(component, word, txt)
+                let total = uAnimeCore.parseText(txt, component.htmlDataTrans.page.total)
+                let pageNum = uAnimeCore.parseText(txt, component.htmlDataTrans.page.pageNum)
+                resole({
+                    total: parseInt(total),
+                    pageNum: parseInt(pageNum)
+                })
             })
             .catch(e =>{
                 uAnimeCore.error(component, e)
-                return null
+                resole({})
             })
+        })
     },
     getSearchResultHtml: function (component, word, currentPage, limit, page, data, callback) {
         uAnimeCore.log(component, uAnimeCore.replace("search word {1} page {2} (l: {3})", word, currentPage, limit))
@@ -164,6 +175,69 @@ const uAnimeCore = {
     },
     getUrl: function (component) {
         return component.search.site + component.search.path
+    },
+    transaleDom: function (text) {
+        let layout = window.document.createElement('div')
+        layout.innerHTML = text
+        uAnimeCore.debug(null, 'transaleDom', layout)
+        return layout
+    },
+    parseText: function (text, rule) {
+        return uAnimeCore.parseDom(uAnimeCore.transaleDom(text), rule)
+    },
+    parseDom: function (dom, rule) {
+        if (rule && !('find' in rule)) {
+            console.error("uCore parse dom :no rule OR no attr 'find' in rule", rule) 
+            return null
+        }
+        let find = null
+        try {
+            find = $(dom)[0]
+            this.debug(null, rule, find)
+            for (let el of rule.find) {
+                if (typeof el == 'number') {
+                    if (el == -1) {
+                        find = $(find).children()
+                    } else {
+                        find = find[el]
+                    }
+                } else {
+                    find = $(find).find(el)
+                }
+                this.debug(null, el, rule, find)
+            }
+        } catch (e) {
+            console.error('pares error', e , rule) 
+            return null
+        }
+        
+        if ('attr' in rule) {
+            try {
+                find = find[rule.attr]
+                this.debug(null, rule.attr, rule, find)
+            } catch (e) {
+                console.error(uAnimeCore.replace("uCore parse dom : no attr '{1}' in rule", rule.attr)) 
+                return null
+            }
+        }
+        if ('clean' in rule) {
+            let reg = RegExp(rule.clean);
+            if (find.match(reg)) {
+                find = RegExp.$1
+                this.debug(null, rule.clean, rule, find)
+            } else {
+                find = null
+            }
+        }
+        this.debug(null, "parse end", rule, find)
+        return find
+    },
+    getPageNum: function(total, limit) {
+        let page = parseInt(total / limit)
+        if (total % limit > 0) {
+            page ++
+        }
+        return page
     }
 }
 
