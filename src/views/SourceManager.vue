@@ -138,10 +138,17 @@ export default {
                 this.$refs.upload.clearFiles()
                 this.getLoadData()
                 loading.close()
-                this.$message({
-                    message: '加载搜索源成功',
-                    type: 'success',
-                })
+                if (data) {
+                    this.$message({
+                        message: '加载搜索源成功',
+                        type: 'success',
+                    })
+                } else {
+                    this.$message({
+                        message: '加载搜索源失败...请检查控制台',
+                        type: 'error',
+                    })
+                }
             })
         },
         saveData() {

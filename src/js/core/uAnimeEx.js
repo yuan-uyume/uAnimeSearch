@@ -23,13 +23,17 @@ const uAnimeEx = {
     },
     loadFormJson: function (json, callback, sys) {
         console.log("loadFormJson: ", json)
-        if (!uAnimeEx.verifyMd5(json)) {
-            console.log(json.id, json.name, "验证md5失败停止导入");
-            return
-        }
         if (!uAnimeEx.verifyMd5Arr(json.rules)) {
+            callback(null)
             return
         }
+
+        if (!uAnimeEx.verifyMd5(json)) {
+            console.error(json.id, json.name, "验证md5失败停止导入");
+            callback(null)
+            return
+        }
+
         if (sys) {
             window.localStorage["componentsStorage"] = JSON.stringify(json)
             callback(json)
