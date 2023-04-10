@@ -18,11 +18,13 @@
                     </div>
                     <div style="height: 100px;max-width: 600px;overflow-x: hidden;overflow-y: hidden;">
                         <div style="height: 24px;color: grey;font-size: 12px;">
-                            <span>
+                            <span v-if="item.source">
                                 {{ item.source }}（{{item.sourceHash}}）|| 
                             </span>
-                            <span class="result-item-tags" v-for="item, index in item.tags"
+                            <span v-if="item.tags && item.tags.length > 0">
+                                <span class="result-item-tags" v-for="item, index in item.tags"
                                 :key="item.index">{{ item }}</span>
+                            </span>
                         </div>
                         <div style="word-wrap:normal;text-overflow: ellipsis">
                             {{ item.info }}

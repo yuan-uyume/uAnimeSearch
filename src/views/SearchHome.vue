@@ -1,6 +1,6 @@
 <template>
     <div style="height: 100%;">
-        <div style="padding: 0 12px;">
+        <div style="padding: 0 12px;margin-bottom: 72px;">
             <div>
                 <el-row :gutter="80">
                     <el-col span="16" style="flex: 1;min-width: 416px;margin: 8px;">
@@ -34,7 +34,7 @@
                 <el-divider></el-divider>
             </div>
             <div>
-                <el-row>
+                <el-row style="padding-bottom: 32px;">
                     <el-col span="20">
                         <AnimeResult :data="showSearchData" />
                     </el-col>
