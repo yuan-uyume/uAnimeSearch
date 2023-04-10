@@ -17,7 +17,10 @@
                         </el-link>
                     </div>
                     <div style="height: 100px;max-width: 600px;overflow-x: hidden;overflow-y: hidden;">
-                        <div style="height: 24px;">
+                        <div style="height: 24px;color: grey;font-size: 12px;">
+                            <span>
+                                {{ item.source }}（{{item.sourceHash}}）|| 
+                            </span>
                             <span class="result-item-tags" v-for="item, index in item.tags"
                                 :key="item.index">{{ item }}</span>
                         </div>
