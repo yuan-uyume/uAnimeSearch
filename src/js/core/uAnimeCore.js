@@ -2,7 +2,7 @@ import uExt from './uAnimeEx.js'
 import $ from 'jquery'
 const uAnimeCore = {
     version: "0.0.1",
-    sources: [],
+    sources: {},
     log: function (component, ...txt) {
         console.log(component ? component.name + "(" + component.md5 + ")" : "uAnimeCore", ...txt);
     },
@@ -39,13 +39,20 @@ const uAnimeCore = {
             } else {
                 uAnimeCore.error(res.component, res.msg, res.data)
             }
-            if (res.type == 0) {
-                data.push[res.data]
+            if (res.data && res.data.length > 0) {
+                data.push(...res.data)
             }
-            complated.push[res.component.md5]
-            if (complated.length >= components.legth) {
+            complated.push({
+                source: res.component.name,
+                sourceMd5: res.component.md5,
+                status: res.type,
+                msg: res.msg
+            })
+            uAnimeCore.log(null, uAnimeCore.replace("a source complated, complated {1} total {2}", complated.length, components.length), res.component)
+            if (complated.length >= components.length) {
                 callback({
-
+                    sources: complated,
+                    data: data
                 })
             }
         }
@@ -55,13 +62,14 @@ const uAnimeCore = {
         console.log('uCore start search:', word, limit, components)
         for (let cp of components) {
             cp.search.api ? uAnimeCore.searchAnime(cp, word, limit, collectComponentsResult) :
-                uAnimeCore.searchAnimeHtml(cp, word, limit, collectComponentsResult)
+                uAnimeCore.searchAnimeByHtml(cp, word, limit, collectComponentsResult)
         }
     },
     searchAnime: function (component, word, limit, callback) {
 
     },
-    searchAnimeHtml: async function (component, word, limit, callback) {
+    searchAnimeByHtml: async function (component, word, limit, callback) {
+        // limit 为限制属性
         uAnimeCore.getSearchPageHtml(component, word)
             .then(html => {
                 if (html == null) {
@@ -78,12 +86,14 @@ const uAnimeCore = {
                         data: []
                     })
                 }
-                let data = []
-                let resultItems = uAnimeCore.getResultItemHtml(html, component)
-                // 发送网络请求获取结果
+                // 已经获取到这次搜索的页码数据，获取第一页的数据
+                let resultItems = uAnimeCore.getResultItemFromHtml(html, component)
                 if (resultItems.length == 0) {
                     throw new Error("resultItems.length == 0")
                 }
+                let data = []
+                let currentPage = 1
+                // 收集结果并判断是否结束
                 if (uAnimeCore.collectSearchResult(component, data, resultItems, word, currentPage, page, limit)) {
                     callback({
                         type: 0,
@@ -92,9 +102,21 @@ const uAnimeCore = {
                         data: data
                     })
                 } else {
-                    uAnimeCore.getSearchResultHtml(component, word, 2, limit, page, data, callback)
+                    // 获取下一页
+                    uAnimeCore.getSearchResultByHtml(component, word, ++currentPage, limit, page, data, callback)
                 }
-            }) // total pageNum limit
+            })
+    },
+    collectSearchResult: function (component, data, addData, word, currentPage, page, limit) {
+        uAnimeCore.log(component, uAnimeCore.replace("collect {1} page {2}", word, currentPage), addData)
+        if (data.length + addData.length > limit) {
+            addData = addData.slice(0, limit - data.length)
+        }
+        data.push(...addData)
+        if (data.length == page.total || data.length == limit) {
+            return true
+        }
+        return false
     },
     loadSearchSources: function () {
         // 从本地储存中获取搜索组件
@@ -104,9 +126,9 @@ const uAnimeCore = {
         sources.userComponents = {}
         console.log('load components', componentsStorage.name);
         let userComponentsHashAddr = JSON.parse(window.localStorage["userComponentsHash"] ? window.localStorage["userComponentsHash"] : "[]")
-        if (userComponentsHashAddr == null || userComponentsHashAddr.legth == 0) {
+        if (userComponentsHashAddr == null || userComponentsHashAddr.length == 0) {
             console.log('components load complated', sources);
-            return
+            return sources
         }
         for (let hash of userComponentsHashAddr) {
             let userComponents = JSON.parse(window.localStorage[hash])
@@ -131,104 +153,16 @@ const uAnimeCore = {
         }
     },
     getSearchSources: function (update) {
-        if (uAnimeCore.sources.componentsStorage.legth == 0 ||
-            uAnimeCore.sources.userComponents.legth == 0) {
+        if (update || update != undefined) {
             uAnimeCore.sources = uAnimeCore.loadSearchSources()
-        }
-        if (update && update != undefined) {
-            uAnimeCore.sources = uAnimeCore.loadSearchSources()
+        } else {
+            if (!(uAnimeCore.sources.userComponents &&
+                uAnimeCore.sources.componentsStorage) ||
+                uAnimeCore.sources.userComponents.length == 0) {
+                uAnimeCore.sources = uAnimeCore.loadSearchSources()
+            }
         }
         return uAnimeCore.sources
-    },
-    getSearchPageHtml: async function (component, word) {
-        let url = uAnimeCore.replace(uAnimeCore.getUrl(component), word)
-        uAnimeCore.log(component, uAnimeCore.replace("getSearchPageHtml word({1}) from {2}", word, url))
-        return uAnimeCore.getHtmlFromUrl(component, url)
-    },
-    getSearchResultHtml: function (component, word, currentPage, limit, page, data, callback) {
-        let url = uAnimeCore.replace(uAnimeCore.getUrl(component, true), word, currentPage)
-        uAnimeCore.log(component, uAnimeCore.replace("search word {1} page {2} (l: {3}) from {4}", word, currentPage, limit, url))
-        fetch(url)
-            .then(res => res.text())
-            .then(resultHtml => {
-                let resultItems = uAnimeCore.getResultItemHtml(resultHtml, component)
-                // 发送网络请求获取结果
-                if (resultItems.length == 0) {
-                    throw new Error("resultItems.length == 0")
-                }
-                if (uAnimeCore.collectSearchResult(component, data, resultItems, word, currentPage, page, limit)) {
-                    callback({
-                        type: 0,
-                        msg: "搜索成功！",
-                        component: component,
-                        data: data
-                    })
-                } else {
-                    uAnimeCore.getSearchResultHtml(component, word, ++currentPage, limit, page, data, callback)
-                }
-            })
-            .catch(e => {
-                uAnimeCore.error(component, e)
-                callback({
-                    type: 1,
-                    msg: "搜索中止...",
-                    component: component,
-                    data: data
-                })
-            })
-    },
-    getResultItemHtml: function (html, component) {
-        let items = uAnimeCore.parseText(html, component.htmlDataTrans.anime.arr)
-        let parseItems = []
-        for (let item of items) {
-            let parseItem = {}
-            for (let key of ['title', 'image', 'info', 'url']) {
-                parseItem[key] = uAnimeCore.parseDom(item, component.htmlDataTrans.anime[key])
-                if (parseItem[key]) {
-                    if (['url', 'image'].includes(key)) {
-                        if (parseItem[key].startsWith(chrome.runtime.getURL("/"))) {
-                            parseItem[key] = parseItem[key].replaceAll(chrome.runtime.getURL("/"), '')
-                            if (!parseItem[key].startsWith("/")) {
-                                parseItem[key] = '/' + parseItem[key]
-                            }
-                            parseItem[key] = component.search.site + parseItem[key]
-                        }
-                    } else {
-                        parseItem[key] = parseItem[key].replaceAll("\t", "").replaceAll("/", "")
-                    }
-                }
-            }
-            parseItems.push(parseItem)
-        }
-        uAnimeCore.log(component, "getResultItemHtml parseItems:", parseItems)
-        return parseItems
-    },
-    collectSearchResult: function (component, data, addData, word, currentPage, page, limit) {
-        uAnimeCore.log(component, uAnimeCore.replace("collect {1} page {2}", word, currentPage), addData)
-        if (data.length + addData.length > limit) {
-            addData = addData.slice(0, limit - data.length)
-        }
-        data.push(...addData)
-        if (data.length == page.total || data.length == limit) {
-            return true
-        }
-        return false
-    },
-    getUrl: function (component, page) {
-        return component.search.site + (page ? component.search.page : component.search.path)
-    },
-    getHtmlFromUrl: function (component, url, ...args) {
-        return new Promise((resole, reject) => {
-            fetch(url)
-                .then(res => res.text())
-                .then(txt => {
-                    resole(txt)
-                })
-                .catch(e => {
-                    uAnimeCore.error(component, e)
-                    resole(null)
-                })
-        })
     },
     transaleTextToDom: function (text) {
         let layout = window.document.createElement('div')
@@ -305,6 +239,89 @@ const uAnimeCore = {
             page++
         }
         return page
+    },
+    getUrl: function (component, page) {
+        return component.search.site + (page ? component.search.page : component.search.path)
+    },
+    getHtmlFromUrl: function (component, url) {
+        return new Promise((resole, reject) => {
+            fetch(url)
+                .then(res => res.text())
+                .then(txt => {
+                    resole(txt)
+                })
+                .catch(e => {
+                    uAnimeCore.error(component, e)
+                    resole(null)
+                })
+        })
+    },
+    getSearchPageHtml: async function (component, word) {
+        let url = uAnimeCore.replace(uAnimeCore.getUrl(component), word)
+        uAnimeCore.log(component, uAnimeCore.replace("getSearchPageHtml word({1}) from {2}", word, url))
+        return uAnimeCore.getHtmlFromUrl(component, url)
+    },
+    getSearchResultByHtml: function (component, word, currentPage, limit, page, data, callback) {
+        let url = uAnimeCore.replace(uAnimeCore.getUrl(component, true), word, currentPage)
+        uAnimeCore.log(component, uAnimeCore.replace("search word {1} page {2} (l: {3}) from {4}", word, currentPage, limit, url))
+        fetch(url)
+            .then(res => res.text())
+            .then(resultHtml => {
+                let resultItems = uAnimeCore.getResultItemFromHtml(resultHtml, component)
+                // 发送网络请求获取结果
+                if (resultItems.length == 0) {
+                    throw new Error("resultItems.length == 0")
+                }
+                if (uAnimeCore.collectSearchResult(component, data, resultItems, word, currentPage, page, limit)) {
+                    callback({
+                        type: 0,
+                        msg: "搜索成功！",
+                        component: component,
+                        data: data
+                    })
+                } else {
+                    uAnimeCore.getSearchResultByHtml(component, word, ++currentPage, limit, page, data, callback)
+                }
+            })
+            .catch(e => {
+                uAnimeCore.error(component, e)
+                callback({
+                    type: 1,
+                    msg: "搜索中止...",
+                    component: component,
+                    data: data
+                })
+            })
+    },
+    getResultItemFromHtml: function (html, component) {
+        let items = uAnimeCore.parseText(html, component.htmlDataTrans.anime.arr)
+        let parseItems = []
+        for (let item of items) {
+            let parseItem = {}
+            for (let key of ['title', 'image', 'info', 'url']) {
+                parseItem[key] = uAnimeCore.parseDom(item, component.htmlDataTrans.anime[key])
+                if (parseItem[key]) {
+                    if (['url', 'image'].includes(key)) {
+                        if (parseItem[key].startsWith(chrome.runtime.getURL("/"))) {
+                            parseItem[key] = parseItem[key].replaceAll(chrome.runtime.getURL("/"), '')
+                            if (!parseItem[key].startsWith("/")) {
+                                parseItem[key] = '/' + parseItem[key]
+                            }
+                            parseItem[key] = component.search.site + parseItem[key]
+                        }
+                    } else {
+                        parseItem[key] = parseItem[key].replaceAll("\t", "").replaceAll("/", "")
+                    }
+                }
+            }
+            let {image, info, ...obj} = parseItem
+            parseItem.md5 = uExt.md5(obj)
+            parseItem.source = component.name
+            parseItem.sourceHash = component.md5
+            parseItems.push(parseItem)
+        }
+        uAnimeCore.log(component, "getResultItemFromHtml parseItems:", parseItems)
+        return parseItems
     }
 }
 

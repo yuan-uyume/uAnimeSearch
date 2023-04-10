@@ -20,7 +20,7 @@ export default {
         <router-view/>
         <el-backtop :right="100" :bottom="100" />
       </el-main>
-      <el-footer>
+      <el-footer style="height: 40px;">
         <el-row justify="center" align="middle" style="height: 100%;">
           <span style="color: rgb(180, 180, 180);text-align: center;">
             powered by uyume uno anun seven_people @ 2023

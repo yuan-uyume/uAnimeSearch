@@ -1,53 +1,55 @@
 <template>
     <div style="height: 100%;">
-        <div>
-            <el-row :gutter="80">
-                <el-col span="16" style="flex: 1;min-width: 416px;margin: 8px;">
-                    <el-row gutter="16" style="min-width: 416px;">
-                        <el-col span="18" style="flex: 1;min-width: 350px;">
-                            <el-input @keyup.enter.native="onSearch" type="text" placeholder="搜索内容"
-                                v-model="search.value"></el-input>
-                        </el-col>
-                        <el-col span="6" style="flex: 0;min-width: 50px;">
-                            <el-button @click="onSearch">搜索</el-button>
-                        </el-col>
-                    </el-row>
-                </el-col>
-                <el-col span="8" style="flex: 0;min-width: 230px;margin: 8px;">
-                    <el-button @click="drawer = true">搜索源</el-button>
-                    <el-button @click="isMore = !isMore">更多</el-button>
-                </el-col>
-            </el-row>
-            <el-row style="margin-top: 24px;margin-left: -7px;" gutter="30" v-show="isMore">
-                <el-col style="flex: 1;margin-bottom: 10px;max-width: 200px;min-width: 200px;" span="7">
-                    <el-tree-select placeholder="选择筛选源" v-model="treeValue" :data="treeData" multiple
-                        :render-after-expand="false" show-checkbox />
-                </el-col>
-                <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="10">
-                    <el-input type="text" placeholder="筛选内容..." v-model="filterValue"></el-input>
-                </el-col>
-                <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="7">
-                    <el-button>筛选</el-button>
-                </el-col>
-            </el-row>
-            <el-divider></el-divider>
-        </div>
-        <div>
-            <el-row>
-                <el-col span="20">
-                    <AnimeResult :data="showSearchData" />
-                </el-col>
-                <el-col span="4">
+        <div style="padding: 0 12px;">
+            <div>
+                <el-row :gutter="80">
+                    <el-col span="16" style="flex: 1;min-width: 416px;margin: 8px;">
+                        <el-row gutter="16" style="min-width: 416px;">
+                            <el-col span="18" style="flex: 1;min-width: 350px;">
+                                <el-input @keyup.enter.native="onSearch" type="text" placeholder="搜索内容"
+                                    v-model="search.value"></el-input>
+                            </el-col>
+                            <el-col span="6" style="flex: 0;min-width: 50px;">
+                                <el-button @click="onSearch">搜索</el-button>
+                            </el-col>
+                        </el-row>
+                    </el-col>
+                    <el-col span="8" style="flex: 0;min-width: 230px;margin: 8px;">
+                        <el-button @click="drawer = true">搜索源</el-button>
+                        <el-button @click="isMore = !isMore">更多</el-button>
+                    </el-col>
+                </el-row>
+                <el-row style="margin-top: 24px;margin-left: -7px;" gutter="30" v-show="isMore">
+                    <el-col style="flex: 1;margin-bottom: 10px;max-width: 200px;min-width: 200px;" span="7">
+                        <el-tree-select placeholder="选择筛选源" v-model="treeValue" :data="treeData" multiple
+                            :render-after-expand="false" show-checkbox />
+                    </el-col>
+                    <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="10">
+                        <el-input type="text" placeholder="筛选内容..." v-model="filterValue"></el-input>
+                    </el-col>
+                    <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="7">
+                        <el-button>筛选</el-button>
+                    </el-col>
+                </el-row>
+                <el-divider></el-divider>
+            </div>
+            <div>
+                <el-row>
+                    <el-col span="20">
+                        <AnimeResult :data="showSearchData" />
+                    </el-col>
+                    <el-col span="4">
 
-                </el-col>
-            </el-row>
+                    </el-col>
+                </el-row>
+            </div>
         </div>
-        <div style="position: fixed;bottom: 65px;z-index: 2;">
+        <el-row style="position: fixed;bottom: 40px;z-index: 2;background-color: white;height: 32px;width: 100%;">
             <el-pagination style="position: absolute;bottom: 0;" :current-page="page.current" :page-size="page.size"
                 :page-sizes="[10, 20, 30, 50]" :disabled="disabled" background
                 layout="total, sizes, prev, pager, next, jumper" :total="pageTotal" @size-change="genPageData"
                 @current-change="changePage" />
-        </div>
+        </el-row>
         <el-drawer v-model="drawer" title="搜索源启用配置" :before-close="handleDrawerClose">
             <div>
                 <el-tree ref="sourcesTree" show-checkbox :data="sources" node-key="md5" default-expand-all
@@ -194,94 +196,96 @@ export default {
             //     console.log(data);
             // })
             let test = [{
-            "name": "MX动漫",
-            "md5": "b4f14530a8abec6609309f647f8d4387",
-            "search": {
-                "api": false,
-                "site": "http://www.mxdm.cc",
-                "path": "/search/-------------.html?wd={1}",
-                "page": "/search/{1}----------{2}---.html"
-            },
-            "htmlDataTrans": {
-                "page": {
-                    "total": {
-                        "find": [
-                            "script", 17
-                        ],
-                        "attr": "innerText",
-                        "clean": "(\\d+)"
-                    },
-                    "pageNum": {
-                        "find": [
-                            ".page-next",
-                            1
-                        ],
-                        "attr": "href",
-                        "clean": "(\\d+)"
-                    },
-                    "limit": "10"
+                "name": "MX动漫",
+                "md5": "b4f14530a8abec6609309f647f8d4387",
+                "search": {
+                    "api": false,
+                    "site": "http://www.mxdm.cc",
+                    "path": "/search/-------------.html?wd={1}",
+                    "page": "/search/{1}----------{2}---.html"
                 },
-                "anime": {
-                    "arr": {
-                        "find": [".module-search-item"]
-                    },
-                    "image": {
-                        "find": [
-                            ".module-item-pic",
-                            'img',
-                            0
-                        ],
-                        "attr": "data-src",
-                        "clean": ""
-                    },
-                    "title": {
-                        "find": [
-                            "h3",
-                            -1,
-                            0
-                        ],
-                        "attr": "innerText",
-                        "clean": ""
-                    },
-                    "info": {
-                        "find": [".video-info-item", 0],
-                        "attr": "innerText",
-                        "clean": ""
-                    },
-                    "url": {
-                        "find": [
-                            "h3",
-                            -1,
-                            0
-                        ],
-                        "attr": "href",
-                        "clean": ""
-                    },
-                    "eps": {
-                        "arr": {
+                "htmlDataTrans": {
+                    "page": {
+                        "total": {
                             "find": [
-                                ".content_playlist"
+                                "script", 17
                             ],
+                            "attr": "innerText",
+                            "clean": "(\\d+)"
+                        },
+                        "pageNum": {
+                            "find": [
+                                ".page-next",
+                                1
+                            ],
+                            "attr": "href",
+                            "clean": "(\\d+)"
+                        },
+                        "limit": "10"
+                    },
+                    "anime": {
+                        "arr": {
+                            "find": [".module-search-item"]
+                        },
+                        "image": {
+                            "find": [
+                                ".module-item-pic",
+                                'img',
+                                0
+                            ],
+                            "attr": "data-src",
                             "clean": ""
                         },
                         "title": {
                             "find": [
+                                "h3",
+                                -1,
                                 0
                             ],
                             "attr": "innerText",
                             "clean": ""
                         },
+                        "info": {
+                            "find": [".video-info-item", 0],
+                            "attr": "innerText",
+                            "clean": ""
+                        },
                         "url": {
-                            "find": "",
+                            "find": [
+                                "h3",
+                                -1,
+                                0
+                            ],
                             "attr": "href",
                             "clean": ""
+                        },
+                        "eps": {
+                            "arr": {
+                                "find": [
+                                    ".content_playlist"
+                                ],
+                                "clean": ""
+                            },
+                            "title": {
+                                "find": [
+                                    0
+                                ],
+                                "attr": "innerText",
+                                "clean": ""
+                            },
+                            "url": {
+                                "find": "",
+                                "attr": "href",
+                                "clean": ""
+                            }
                         }
                     }
                 }
-            }
             }]
-            this.uCore.search(test, searchValue, size, (data) => {
+            this.uCore.search(test, searchValue, 25, (data) => {
                 console.log(data);
+                this.searchData = data.data
+                this.showSearchData = this.searchData
             })
         },
         getSearchComponents() {

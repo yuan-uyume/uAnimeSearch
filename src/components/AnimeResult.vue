@@ -16,12 +16,12 @@
                             <h2>{{ item.title }}</h2>
                         </el-link>
                     </div>
-                    <div style="height: 100px;overflow-x: hidden;overflow-y: auto;">
+                    <div style="height: 100px;max-width: 600px;overflow-x: hidden;overflow-y: hidden;">
                         <div style="height: 24px;">
                             <span class="result-item-tags" v-for="item, index in item.tags"
                                 :key="item.index">{{ item }}</span>
                         </div>
-                        <div>
+                        <div style="word-wrap:normal;text-overflow: ellipsis">
                             {{ item.info }}
                         </div>
                     </div>
@@ -62,6 +62,9 @@ export default {
     },
     methods: {
         getUrl(url) {
+            if (!(url && url.trim() != '')) {
+                url = '@/icons/image1.png'
+            }
             if (url.startsWith("http")) {
                 return url
             } else if (url.startsWith("@")) {
@@ -80,6 +83,7 @@ export default {
     border-radius: 6px;
     padding: 10px 12px;
     box-shadow: 0px 0px 12px rgba(0, 0, 0, .12);
+    margin-bottom: 24px;
 }
 
 .result-item:hover {
