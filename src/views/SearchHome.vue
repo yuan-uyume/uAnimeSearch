@@ -288,7 +288,7 @@ export default {
                 console.log("gei search result :", data);
                 this.searchData = data.data
                 this.filterSearchData = this.searchData
-                this.genPageData()
+                this.genPageData(size)
             })
         },
         getSearchComponents() {

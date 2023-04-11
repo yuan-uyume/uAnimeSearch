@@ -14,9 +14,19 @@ const uAnimeCore = {
     },
     replace(txt, ...data) {
         let t = txt, i = 1
-        for (let s of data) {
-            t = t.replaceAll("{" + i + "}", s)
-            i++
+        uAnimeCore.debug(null, "replace", txt, data)
+        if (t && typeof t == 'string' && t != '') {
+            for (let s of data) {
+                try {
+                    t = t.replaceAll("{" + i + "}", s)
+                } catch (e) {
+                    while(t.indexOf("{" + i + "}") > -1) {
+                        t = t.replace("{" + i + "}", s)
+                    }
+                }
+                
+                i++
+            }
         }
         return t
     },
@@ -241,7 +251,9 @@ const uAnimeCore = {
         return page
     },
     getUrl: function (component, page) {
-        return component.search.site + (page ? component.search.page : component.search.path)
+        let url = component.search.site + (page ? component.search.page : component.search.path)
+        console.log('url', url);
+        return url ? url : ''
     },
     getHtmlFromUrl: function (component, url) {
         return new Promise((resole, reject) => {
