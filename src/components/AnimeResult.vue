@@ -3,7 +3,7 @@
         <el-row class="result-item" v-for="item, index in data" :key="item.hash">
             <el-col span="6" style="min-width: 200px;max-width: 200px;padding-right: 18px;max-height: 200px;">
                 <div class="on-border">
-                    <a :href="item.url" style="position: relative;bottom:7px;width: 100%;">
+                    <a target="_blank" :href="item.url" style="position: relative;bottom:7px;width: 100%;">
                         <img style="width: 112%;position: relative;left: -6%;top:7px" :src="getUrl(item.image)"
                             :alt="item.title">
                     </a>
@@ -32,7 +32,7 @@
                     </div>
                     <div class="result-item-eps-box">
                         <span class="result-item-eps" v-for="ep, index in item.eps" :key="ep.url">
-                            <el-link :href="ep.url">
+                            <el-link target="_blank" :href="ep.url">
                                 <el-button text bg>{{ ep.title }}</el-button>
                             </el-link>
                         </span>
