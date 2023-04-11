@@ -1,13 +1,45 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="icons/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>uAnimeSearchExt</title>
-  </head>
-  <body style="background-color: white;">
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
-  </body>
+<html lang="zh">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="icons/favicon.ico">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>uAnimeSearchExt</title>
+</head>
+
+<body style="background-color: white;">
+  <div id="app"></div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+<style>
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    width: 2px;
+    background: rgba(#101F1C, 0.1);
+    -webkit-border-radius: 2em;
+    -moz-border-radius: 2em;
+    border-radius: 2em;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(144, 147, 153, .5);
+    background-clip: padding-box;
+    min-height: 28px;
+    -webkit-border-radius: 2em;
+    -moz-border-radius: 2em;
+    border-radius: 2em;
+    transition: background-color .3s;
+    cursor: pointer;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(144, 147, 153, .3);
+  }
+</style>
+
 </html>

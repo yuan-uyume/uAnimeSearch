@@ -25,7 +25,7 @@
                             :render-after-expand="false" show-checkbox />
                     </el-col>
                     <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="10">
-                        <el-input type="text" placeholder="筛选内容..." v-model="filterValue"></el-input>
+                        <el-input type="text" placeholder="筛选内容..." v-model="search.filterValue"></el-input>
                     </el-col>
                     <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="7">
                         <el-button>筛选</el-button>
@@ -46,9 +46,8 @@
         </div>
         <el-row style="position: fixed;bottom: 40px;z-index: 2;background-color: white;height: 32px;width: 100%;">
             <el-pagination style="position: absolute;bottom: 0;" :current-page="page.current" :page-size="page.size"
-                :page-sizes="[10, 20, 30, 50]" :disabled="disabled" background
-                layout="total, sizes, prev, pager, next, jumper" :total="pageTotal" @size-change="genPageData"
-                @current-change="changePage" />
+                :page-sizes="[10, 20, 30]" :disabled="disabled" background layout="total, sizes, prev, pager, next, jumper"
+                :total="pageTotal" @size-change="genPageData" @current-change="changePage" />
         </el-row>
         <el-drawer v-model="drawer" title="搜索源启用配置" :before-close="handleDrawerClose">
             <div>
@@ -77,6 +76,7 @@
 </style>
 
 <script>
+import { keys } from 'lodash';
 import AnimeResult from '../components/AnimeResult.vue';
 export default {
     components: { AnimeResult },
@@ -87,36 +87,8 @@ export default {
             treeValue: '',
             treeData: [],
             searchData: [],
-            showSearchData: [{
-                title: "标 题",
-                url: "https://www.baidu.com",
-                image: "@/icons/image1.png",
-                info: "这是一个动漫搜索结果展示",
-                eps: [
-                    {
-                        title: '1',
-                        url: "#"
-                    }, {
-                        title: '2',
-                        url: "#"
-                    }, {
-                        title: '3',
-                        url: "#"
-                    }, {
-                        title: '4',
-                        url: "#"
-                    }, {
-                        title: '5',
-                        url: "#"
-                    }, {
-                        title: '6',
-                        url: "#"
-                    }, {
-                        title: '7',
-                        url: "#"
-                    }
-                ]
-            }],
+            showSearchData: [],
+            filterSearchData: [],
             searchComponents: [],
             page: {
                 size: 20,
@@ -125,13 +97,14 @@ export default {
             },
             search: {
                 value: '',
+                filterValue: '',
                 components: []
             }
         }
     },
     computed: {
         pageTotal() {
-            return this.showSearchData.length
+            return this.filterSearchData.length
         }
     },
     watch: {
@@ -192,111 +165,51 @@ export default {
                 return
             }
             let size = this.page.size
-            // this.uCore.search(sources, searchValue, size, (data) => {
-            //     console.log(data);
-            // })
-            let test = [{
-                "name": "MX动漫",
-                "md5": "b4f14530a8abec6609309f647f8d4387",
-                "search": {
-                    "api": false,
-                    "site": "http://www.mxdm.cc",
-                    "path": "/search/-------------.html?wd={1}",
-                    "page": "/search/{1}----------{2}---.html"
-                },
-                "htmlDataTrans": {
-                    "page": {
-                        "total": {
-                            "find": [
-                                "script", 17
-                            ],
-                            "attr": "innerText",
-                            "clean": "(\\d+)"
-                        },
-                        "pageNum": {
-                            "find": [
-                                ".page-next",
-                                1
-                            ],
-                            "attr": "href",
-                            "clean": "(\\d+)"
-                        },
-                        "limit": "10"
-                    },
-                    "anime": {
-                        "arr": {
-                            "find": [".module-search-item"]
-                        },
-                        "image": {
-                            "find": [
-                                ".module-item-pic",
-                                'img',
-                                0
-                            ],
-                            "attr": "data-src",
-                            "clean": ""
-                        },
-                        "title": {
-                            "find": [
-                                "h3",
-                                -1,
-                                0
-                            ],
-                            "attr": "innerText",
-                            "clean": ""
-                        },
-                        "info": {
-                            "find": [".video-info-item", 0],
-                            "attr": "innerText",
-                            "clean": ""
-                        },
-                        "url": {
-                            "find": [
-                                "h3",
-                                -1,
-                                0
-                            ],
-                            "attr": "href",
-                            "clean": ""
-                        },
-                        "eps": {
-                            "arr": {
-                                "find": [
-                                    ".content_playlist"
-                                ],
-                                "clean": ""
-                            },
-                            "title": {
-                                "find": [
-                                    0
-                                ],
-                                "attr": "innerText",
-                                "clean": ""
-                            },
-                            "url": {
-                                "find": "",
-                                "attr": "href",
-                                "clean": ""
-                            }
-                        }
-                    }
-                }
-            }]
-            this.uCore.search(test, searchValue, 25, (data) => {
-                console.log(data);
+
+            this.uCore.search(sources, searchValue, 25, (data) => {
+                console.log("get search result :", data);
                 this.searchData = data.data
-                this.showSearchData = this.searchData
+                this.filterSearchData = this.searchData
+                this.genPageData(size)
             })
         },
         getSearchComponents() {
             let data = this.uCore.getSearchSources(true)
             console.log("created data,", data);
             this.searchComponents = data.userComponents
-            data.componentsStorage.sys = true
-            for (let o of data.componentsStorage.rules) {
-                o.sys = true
+            if (data.componentsStorage == undefined || Object.keys(data.componentsStorage).length == 0) {
+                let componentUp = {
+                    ghproxy: true,
+                    name: "uyume_likes",
+                    address: "https://raw.githubusercontent.com/yuan-uyume/uAnimeSearch/master/data/uyume_like.json"
+                }
+                let url = componentUp.address
+                if ('ghproxy' in componentUp && componentUp.ghproxy) {
+                    url = "https://ghproxy.com/" + url
+                }
+                this.uExt.loadFormUrl(url, (d) => {
+                    if (d == null) {
+                        return
+                    }
+                    data.componentsStorage = d
+                    data.componentsStorage.sys = true
+                    for (let o of data.componentsStorage.rules) {
+                        o.sys = true
+                    }
+                    this.searchComponents[data.componentsStorage.md5] = data.componentsStorage
+                    this.$message({
+                        message: '更新搜索源成功',
+                        type: 'success',
+                    })
+                }, true)
+            } else {
+                data.componentsStorage.sys = true
+                for (let o of data.componentsStorage.rules) {
+                    o.sys = true
+                }
+                this.searchComponents[data.componentsStorage.md5] = data.componentsStorage
             }
-            this.searchComponents[data.componentsStorage.md5] = data.componentsStorage
+
         },
         handleDrawerClose(ignore) {
             let selectValue = this.$refs.sourcesTree.getCheckedNodes(true, false)
@@ -345,14 +258,37 @@ export default {
                 }
             }
         },
-        genPageData(pageSize) {
+        genPageData(size) {
             // 将searchData 拍pageSize的大小切分为 pageData （二维数组）
             // this.page.pageData = [[], [], []]
+            let i = 0
+            let pageData = []
+            let page = []
+            for (let item of this.filterSearchData) {
+                if (i % size == 0) {
+                    page = []
+                }
+                page.push(item)
+                if (++i % size == 0 || i == this.filterSearchData.length) {
+                    pageData.push(page)
+                }
+            }
+            this.page.size = size
+            this.page.pageData = pageData
+            console.log("genPageData end ...", size, pageData);
             this.changePage(1)
+        },
+        genFilterSearchData() {
+            this.filterSearchData = this.searchData.filter(d => {
+                return this.search.filterValue == '' || d.title.find(this.search.filterValue) || d.info.find(this.search.filterValue)
+            })
+            this.genPageData(this.page.size)
         },
         changePage(page) {
             // 点击第几页就是将showSearchData赋值
-            // this.showSearchData = this.page.pageData[currentPage]
+            this.page.current = page
+            this.showSearchData = this.page.pageData[page - 1]
+            console.debug('showSearchData', page, this.showSearchData)
         }
     }
 }

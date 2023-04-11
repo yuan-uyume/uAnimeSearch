@@ -111,11 +111,14 @@ export default {
             let data = this.uCore.getSearchSources(true)
             console.log("created data,", data);
             this.loadData = data.userComponents
-            data.componentsStorage.sys = true
-            for (let o of data.componentsStorage.rules) {
-                o.sys = true
+            console.log(Object.keys(data.componentsStorage));
+            if (data.componentsStorage != undefined && Object.keys(data.componentsStorage).length > 0) {
+                data.componentsStorage.sys = true
+                for (let o of data.componentsStorage.rules) {
+                    o.sys = true
+                }
+                this.loadData[data.componentsStorage.md5] = data.componentsStorage
             }
-            this.loadData[data.componentsStorage.md5] = data.componentsStorage
         },
         handleExceed(files) {
             this.$refs.upload.clearFiles()
@@ -171,9 +174,9 @@ export default {
             this.uCore.saveSearchSources(sources)
             this.getLoadData()
             this.$message({
-                    message: '保存搜索源更改成功',
-                    type: 'success',
-                })
+                message: '保存搜索源更改成功',
+                type: 'success',
+            })
         },
         append(data) {
             // const newChild = {
