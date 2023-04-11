@@ -8,10 +8,14 @@ import 'element-plus/dist/index.css'
 import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 import uCore from './js/core/uAnimeCore.js'
 import uExt from './js/core/uAnimeEx.js'
-
+uCore.initCore()
+if (String.prototype.replaceAll == undefined) {
+    String.prototype.replaceAll = function (oldStr, newStr) {
+        return this.replace(new RegExp(oldStr, 'gm'), newStr)
+    }
+}
 const app = createApp(App)
 app.config.globalProperties.$ = jQuery
-uCore.initCore()
 app.config.globalProperties.uCore = uCore
 app.config.globalProperties.uExt = uExt
 app.config.globalProperties.toRaw = function(obj) {

@@ -22,18 +22,18 @@
                                 {{ item.source }}（{{item.sourceHash}}）|| 
                             </span>
                             <span v-if="item.tags && item.tags.length > 0">
-                                <span class="result-item-tags" v-for="item, index in item.tags"
-                                :key="item.index">{{ item }}</span>
+                                <span class="result-item-tags" v-for="tag, index in item.tags"
+                                :key="index">{{ tag }}</span>
                             </span>
                         </div>
                         <div style="word-wrap:normal;text-overflow: ellipsis">
                             {{ item.info }}
                         </div>
                     </div>
-                    <div style="height: 60px;overflow-x: hidden;overflow-y: auto;">
-                        <span class="result-item-eps" v-for="item, index in item.eps" :key="item.index">
-                            <el-link :href="item.url">
-                                <el-button text bg>{{ item.title }}</el-button>
+                    <div class="result-item-eps-box">
+                        <span class="result-item-eps" v-for="ep, index in item.eps" :key="ep.url">
+                            <el-link :href="ep.url">
+                                <el-button text bg>{{ ep.title }}</el-button>
                             </el-link>
                         </span>
                     </div>
@@ -45,15 +45,6 @@
         </el-row>
     </div>
 </template>
-
-<style scoped>
-.result-item-tags{
-    margin-right: 5px;
-}
-.result-item-eps{
-    margin-right: 8px;
-}
-</style>
 
 <script type="moudle">
 export default {
@@ -114,5 +105,23 @@ export default {
 
 .on-border:hover img {
     transform: scale(1.1)
+}
+
+.result-item-tags{
+    margin-right: 5px;
+}
+.result-item-eps{
+    margin-right: 8px;
+    margin-bottom: 5px;
+    display: inline-block;
+}
+.result-item-eps-box:hover{
+    background-color: rgb(253, 253, 253);
+}
+.result-item-eps-box{
+    height: 60px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    max-width: 600px;
 }
 </style>
