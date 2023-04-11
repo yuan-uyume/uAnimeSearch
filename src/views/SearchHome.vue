@@ -25,7 +25,7 @@
                             :render-after-expand="false" show-checkbox />
                     </el-col>
                     <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="10">
-                        <el-input type="text" placeholder="筛选内容..." v-model="filterValue"></el-input>
+                        <el-input type="text" placeholder="筛选内容..." v-model="search.filterValue"></el-input>
                     </el-col>
                     <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="7">
                         <el-button>筛选</el-button>
@@ -117,6 +117,7 @@ export default {
                     }
                 ]
             }],
+            filterSearchData: [],
             searchComponents: [],
             page: {
                 size: 20,
@@ -125,6 +126,7 @@ export default {
             },
             search: {
                 value: '',
+                filterValue: '',
                 components: []
             }
         }
@@ -283,9 +285,10 @@ export default {
                 }
             }]
             this.uCore.search(test, searchValue, 25, (data) => {
-                console.log(data);
+                console.log("gei search result :", data);
                 this.searchData = data.data
-                this.showSearchData = this.searchData
+                this.filterSearchData = this.searchData
+                this.genPageData()
             })
         },
         getSearchComponents() {
@@ -345,14 +348,32 @@ export default {
                 }
             }
         },
-        genPageData(pageSize) {
+        genPageData(size) {
             // 将searchData 拍pageSize的大小切分为 pageData （二维数组）
             // this.page.pageData = [[], [], []]
+            let i = 0
+            let pageData = []
+            let page = []
+            for (let item of this.filterSearchData) {
+                if (i % size == 0) {
+                    page = []
+                }
+                page.push(item)
+                if (++i % size == 0 || i == this.filterSearchData.length) {
+                    pageData.push(page)
+                }
+            }
             this.changePage(1)
+        },
+        genFilterSearchData() {
+            this.filterSearchData = this.searchData.filter(d => {
+                return this.search.filterValue == '' || d.title.find(this.search.filterValue) || d.info.find(this.search.filterValue)
+            })
+            this.genPageData(this.page.size)
         },
         changePage(page) {
             // 点击第几页就是将showSearchData赋值
-            // this.showSearchData = this.page.pageData[currentPage]
+            this.showSearchData = this.page.pageData[page]
         }
     }
 }
