@@ -3,17 +3,17 @@
         <el-row class="result-item" v-for="item, index in data" :key="item.hash">
             <el-col span="6" style="min-width: 200px;max-width: 200px;padding-right: 18px;max-height: 200px;">
                 <div class="on-border">
-                    <a :href="item.url" style="position: relative;bottom:7px;width: 100%;">
+                    <a target="_blank" :href="item.url" style="position: relative;bottom:7px;width: 100%;">
                         <img style="width: 112%;position: relative;left: -6%;top:7px" :src="getUrl(item.image)"
                             :alt="item.title">
                     </a>
                 </div>
             </el-col>
-            <el-col span="15" style="min-width: 600px;">
+            <el-col span="18" style="min-width: 600px;">
                 <div>
                     <div style="height: 36px;overflow-x: hidden;overflow-y: auto;">
-                        <el-link style="color: #00bd7e" :underline="false" :href="item.url" target="_blank" rel="noopener noreferrer">
-                            <h2>{{ item.title }}</h2>
+                        <el-link :title="item.title" style="color: #00bd7e;margin-right: 65px;" :underline="false" :href="item.url" target="_blank"  rel="noopener noreferrer">
+                            <h2 style="overflow: hidden;width: 100%;max-width: 600px;word-wrap:normal;text-overflow: ellipsis">{{ item.title }}</h2>
                         </el-link>
                     </div>
                     <div style="height: 100px;max-width: 600px;overflow-x: hidden;overflow-y: hidden;">
@@ -26,22 +26,25 @@
                                 :key="index">{{ tag }}</span>
                             </span>
                         </div>
-                        <div style="word-wrap:normal;text-overflow: ellipsis">
+                        <div style="overflow: hidden;max-width: 600px;word-wrap:normal;text-overflow: ellipsis;word-break:break-all;max-height: 80px;">
                             {{ item.info }}
                         </div>
                     </div>
                     <div class="result-item-eps-box">
                         <span class="result-item-eps" v-for="ep, index in item.eps" :key="ep.url">
-                            <el-link :href="ep.url">
+                            <el-link target="_blank" :href="ep.url">
                                 <el-button text bg>{{ ep.title }}</el-button>
                             </el-link>
                         </span>
                     </div>
                 </div>
             </el-col>
-            <el-col span="3" style="min-width: 100px;justify-content: center;">
-                <el-button style="float: right;">收藏</el-button>
-            </el-col>
+            <div style="position: relative;">
+                    <el-button style="position: absolute;top:0px;right: 0px;">收藏</el-button>
+            </div>
+            <!-- <el-col span="3" style="min-width: 100px;justify-content: center;">
+                
+            </el-col> -->
         </el-row>
     </div>
 </template>

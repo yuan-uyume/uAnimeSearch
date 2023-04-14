@@ -29,6 +29,21 @@
                     </el-col>
                     <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="7">
                         <el-button>筛选</el-button>
+                        <div style="float: right;">
+                            <el-checkbox style="margin-right: 14px;" v-model="openTest">启动测试</el-checkbox>
+                            <el-button @click="test(true)">测试源设置</el-button>
+                        </div>
+                        <el-dialog v-model="showTestEdit" title="测试源设置">
+                            <div>
+                                <el-input type="textarea" resize="none" rows="26" v-model="testSource"></el-input>
+                            </div>
+                            <template #footer>
+                                <span>
+                                    <el-button @click="genSource">生成可复制搜索源文本</el-button>
+                                    <el-button @click="test(false)">确定</el-button>
+                                </span>
+                            </template>
+                        </el-dialog>
                     </el-col>
                 </el-row>
                 <el-divider></el-divider>
@@ -39,7 +54,6 @@
                         <AnimeResult :data="showSearchData" />
                     </el-col>
                     <el-col span="4">
-
                     </el-col>
                 </el-row>
             </div>
@@ -76,18 +90,54 @@
 </style>
 
 <script>
-import { keys } from 'lodash';
 import AnimeResult from '../components/AnimeResult.vue';
+import uExt from '../js/core/uAnimeEx.js'
 export default {
     components: { AnimeResult },
     data() {
         return {
             isMore: false,
             drawer: false,
+            openTest: false,
+            showTestEdit: false,
+            testSource: '',
             treeValue: '',
             treeData: [],
             searchData: [],
             showSearchData: [],
+            // showSearchData: [{
+            //     title: "aaa1111111111111111111111112111111111111111111111111111112111111111",
+            //     url: "#",
+            //     info: "asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd ",
+            //     eps: [{
+            //         title: "a",
+            //         url: "#"
+            //     }, {
+            //         title: "a",
+            //         url: "#"
+            //     }, {
+            //         title: "a",
+            //         url: "#"
+            //     }, {
+            //         title: "a",
+            //         url: "#"
+            //     }, {
+            //         title: "a",
+            //         url: "#"
+            //     }, {
+            //         title: "a",
+            //         url: "#"
+            //     }, {
+            //         title: "a",
+            //         url: "#"
+            //     }, {
+            //         title: "a",
+            //         url: "#"
+            //     }, {
+            //         title: "a",
+            //         url: "#"
+            //     }]
+            // }],
             filterSearchData: [],
             searchComponents: [],
             page: {
@@ -134,6 +184,20 @@ export default {
         this.$nextTick(this.getQueryAndSearch)
     },
     methods: {
+        test(flag) {
+            this.showTestEdit = flag
+            if (flag) {
+                this.testSource = localStorage['testSource']
+            } else {
+                localStorage['testSource'] = this.testSource
+            }
+        },
+        genSource() {
+            let {md5, ...obj} = JSON.parse(this.testSource)
+            let tObjMd5 = uExt.md5(obj)
+            obj.md5 =  tObjMd5
+            this.testSource = JSON.stringify(obj)
+        },
         filterSearchResult() {
             if (this.filterValue && this.treeValue) {
                 this.showSearchData = this.searchData.filter(d => {
@@ -165,9 +229,18 @@ export default {
                 return
             }
             let size = this.page.size
-
+            if (this.openTest) {
+                sources = [JSON.parse(this.testSource)]
+                console.log("testSource:", this.testSource, sources);
+            }
+            let loading = this.$loading({
+                lock: true,
+                text: 'Loading',
+                background: 'rgba(0, 0, 0, 0.7)',
+            })
             this.uCore.search(sources, searchValue, 25, (data) => {
                 console.log("get search result :", data);
+                loading.close()
                 this.searchData = data.data
                 this.filterSearchData = this.searchData
                 this.genPageData(size)
