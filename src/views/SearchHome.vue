@@ -193,9 +193,9 @@ export default {
             }
         },
         genSource() {
-            let {md5, ...obj} = JSON.parse(this.testSource)
+            let { md5, ...obj } = JSON.parse(this.testSource)
             let tObjMd5 = uExt.md5(obj)
-            obj.md5 =  tObjMd5
+            obj.md5 = tObjMd5
             this.testSource = JSON.stringify(obj)
         },
         filterSearchResult() {
@@ -247,9 +247,9 @@ export default {
             })
         },
         getSearchComponents() {
-            let data = this.uCore.getSearchSources(true)
+            let data = Object.assign({}, this.uCore.getSearchSources(true));
             console.log("created data,", data);
-            this.searchComponents = data.userComponents
+            this.searchComponents = Object.assign({}, data.userComponents);
             if (data.componentsStorage == undefined || Object.keys(data.componentsStorage).length == 0) {
                 let componentUp = {
                     ghproxy: true,
@@ -260,20 +260,21 @@ export default {
                 if ('ghproxy' in componentUp && componentUp.ghproxy) {
                     url = "https://ghproxy.com/" + url
                 }
+                let loading = this.$loading({
+                    lock: true,
+                    text: 'Loading',
+                    background: 'rgba(0, 0, 0, 0.7)',
+                })
                 this.uExt.loadFormUrl(url, (d) => {
+                    loading.close()
                     if (d == null) {
                         return
                     }
-                    data.componentsStorage = d
-                    data.componentsStorage.sys = true
-                    for (let o of data.componentsStorage.rules) {
-                        o.sys = true
-                    }
-                    this.searchComponents[data.componentsStorage.md5] = data.componentsStorage
                     this.$message({
                         message: '更新搜索源成功',
                         type: 'success',
                     })
+                    this.getSearchComponents()
                 }, true)
             } else {
                 data.componentsStorage.sys = true
@@ -281,6 +282,7 @@ export default {
                     o.sys = true
                 }
                 this.searchComponents[data.componentsStorage.md5] = data.componentsStorage
+                console.log("searchComponents load", this.toRaw(this.searchComponents));
             }
 
         },
@@ -304,7 +306,7 @@ export default {
         },
         loadEnableComponentsAndSelect() {
             this.drawer = true
-            let enableComponents = JSON.parse(window.localStorage['enableComponents'] ? window.localStorage['enableComponents'] : [])
+            let enableComponents = JSON.parse(window.localStorage['enableComponents'] ? window.localStorage['enableComponents'] : '[]')
             this.$nextTick(() => {
                 this.$refs.sourcesTree.setCheckedKeys(enableComponents)
                 this.$message({
