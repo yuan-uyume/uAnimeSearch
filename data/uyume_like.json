@@ -2,7 +2,6 @@
     "name": "uyume_like",
     "url": "",
     "id": "uyume_like",
-    "md5": "75b5b87306b9d7cc5c925cae6712b628",
     "rules": [
         {
             "name": "MX动漫",
@@ -17,7 +16,8 @@
                 "page": {
                     "total": {
                         "find": [
-                            "script", 17
+                            "script",
+                            17
                         ],
                         "attr": "innerText",
                         "clean": "(\\d+)"
@@ -34,7 +34,9 @@
                 },
                 "anime": {
                     "arr": {
-                        "find": [".module-search-item"]
+                        "find": [
+                            ".module-search-item"
+                        ]
                     },
                     "image": {
                         "find": [
@@ -55,7 +57,10 @@
                         "clean": ""
                     },
                     "info": {
-                        "find": [".video-info-item", 0],
+                        "find": [
+                            ".video-info-item",
+                            0
+                        ],
                         "attr": "innerText",
                         "clean": ""
                     },
@@ -71,7 +76,9 @@
                     "eps": {
                         "arr": {
                             "find": [
-                                ".scroll-content", 1 ,"a"
+                                ".scroll-content",
+                                1,
+                                "a"
                             ],
                             "clean": ""
                         },
@@ -88,6 +95,98 @@
                     }
                 }
             }
+        },
+        {
+            "name": "AGE动漫",
+            "search": {
+                "api": false,
+                "site": "https://www.agemys.net",
+                "path": "/search?query={1}&page=1",
+                "page": "/search?query={1}&page={2}"
+            },
+            "htmlDataTrans": {
+                "page": {
+                    "total": {
+                        "find": [
+                            "#result_count",
+                            0
+                        ],
+                        "attr": "innerText",
+                        "clean": "(\\d+)"
+                    },
+                    "pageNum": {
+                        "find": [
+                            ".pbutton.asciifont",
+                            9
+                        ],
+                        "attr": "href",
+                        "clean": "page=(\\d+)"
+                    },
+                    "limit": "24"
+                },
+                "anime": {
+                    "arr": {
+                        "find": [
+                            ".cell"
+                        ]
+                    },
+                    "image": {
+                        "find": [
+                            ".cell_poster",
+                            "img",
+                            0
+                        ],
+                        "attr": "src",
+                        "clean": ""
+                    },
+                    "title": {
+                        "find": [
+                            ".cell_imform_name",
+                            0
+                        ],
+                        "attr": "innerText",
+                        "clean": ""
+                    },
+                    "info": {
+                        "find": [
+                            ".cell_imform_desc",
+                            0
+                        ],
+                        "attr": "innerText",
+                        "clean": ""
+                    },
+                    "url": {
+                        "find": [
+                            ".cell_imform_name",
+                            0
+                        ],
+                        "attr": "href",
+                        "clean": ""
+                    },
+                    "eps": {
+                        "arr": {
+                            "find": [
+                                ".movurl",
+                                1,
+                                "a"
+                            ],
+                            "clean": ""
+                        },
+                        "title": {
+                            "find": [],
+                            "attr": "innerText",
+                            "clean": ""
+                        },
+                        "url": {
+                            "find": [],
+                            "attr": "href",
+                            "clean": ""
+                        }
+                    }
+                }
+            },
+            "md5": "e3eb6651b25252ef2d13da1a008bd5bd"
         }
-    ]
+    ],
+    "md5": "87624e67c3779adc39683d8aa356c3be"
 }
