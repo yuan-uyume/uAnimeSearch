@@ -63,7 +63,8 @@
                 :page-sizes="[10, 20, 30]" :disabled="disabled" background layout="total, sizes, prev, pager, next, jumper"
                 :total="pageTotal" @size-change="genPageData" @current-change="changePage" />
         </el-row>
-        <el-drawer v-model="drawer" title="搜索源启用配置" :before-close="handleDrawerClose">
+        <el-drawer ref="elDrawer" v-model="drawer" title="搜索源启用配置" :before-close="handleDrawerClose"
+            @close="saveEnableComponentsHash">
             <div>
                 <el-tree ref="sourcesTree" show-checkbox :data="sources" node-key="md5" default-expand-all
                     :expand-on-click-node="false">
@@ -149,7 +150,8 @@ export default {
                 value: '',
                 filterValue: '',
                 components: []
-            }
+            },
+            closeDrawer: null
         }
     },
     computed: {
@@ -181,7 +183,7 @@ export default {
     },
     mounted() {
         this.loadEnableComponentsAndSelect()
-        this.$nextTick(this.getQueryAndSearch)
+
     },
     methods: {
         test(flag) {
@@ -286,23 +288,24 @@ export default {
             }
 
         },
-        handleDrawerClose(ignore) {
+        handleDrawerClose(done) {
             let selectValue = this.$refs.sourcesTree.getCheckedNodes(true, false)
             selectValue = this.toRaw(selectValue)
             console.log("selectValue :", selectValue);
             this.search.components = selectValue
+            done()
+        },
+        saveEnableComponentsHash() {
+            let selectValue = this.$refs.sourcesTree.getCheckedNodes(true)
             let componentsHashSet = selectValue.map((item, index) => {
                 return item.md5
             })
-            if (ignore != true) {
-                console.log('save enableComponents hashset', componentsHashSet);
-                window.localStorage['enableComponents'] = JSON.stringify(componentsHashSet)
-                this.$message({
-                    type: 'success',
-                    message: '保存搜索源启用配置成功...'
-                })
-            }
-            this.drawer = false
+            console.log('save enableComponents hashset', componentsHashSet);
+            window.localStorage['enableComponents'] = JSON.stringify(componentsHashSet)
+            this.$message({
+                type: 'success',
+                message: '保存搜索源启用配置成功...'
+            })
         },
         loadEnableComponentsAndSelect() {
             this.drawer = true
@@ -313,22 +316,26 @@ export default {
                     type: 'success',
                     message: '加载搜索源启用配置成功...'
                 })
-                this.handleDrawerClose()
+                this.drawer = false
+                this.$nextTick(() => { this.getQueryAndSearch() })
             })
         },
         getQueryAndSearch() {
             let params = this.$route.query
             console.log('path params: ', params);
-            if ('value' in params && params.value.trim() != '') {
-                this.search.value = params.value.trim()
+            let a = 'value' in params && params.value != ''
+            let b = 'type' in params && params.type == 0
+            if (a || b) {
                 // 全选搜索组件
-                if (params.type && params.type == 0) {
+                if (b) {
                     this.$nextTick(() => {
                         this.$refs.sourcesTree.setCheckedNodes(this.sources)
-                        this.$nextTick(() => {
-                            this.handleDrawerClose(true)
-                            this.onSearch()
-                        })
+                        if (a) {
+                            this.search.value = params.value.trim()
+                            this.$nextTick(() => {
+                                this.onSearch()
+                            })
+                        }
                     })
                 }
             }
