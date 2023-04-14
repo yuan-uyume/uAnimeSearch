@@ -296,7 +296,7 @@ export default {
             done()
         },
         saveEnableComponentsHash() {
-            let selectValue = this.$refs.sourcesTree.getCheckedNodes(true)
+            let selectValue = this.$refs.sourcesTree.getCheckedNodes(true, false)
             let componentsHashSet = selectValue.map((item, index) => {
                 return item.md5
             })
@@ -330,6 +330,7 @@ export default {
                 if (b) {
                     this.$nextTick(() => {
                         this.$refs.sourcesTree.setCheckedNodes(this.sources)
+                        this.search.components = this.$refs.sourcesTree.getCheckedNodes(true, false)
                         if (a) {
                             this.search.value = params.value.trim()
                             this.$nextTick(() => {
