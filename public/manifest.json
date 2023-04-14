@@ -3,26 +3,38 @@
   "name": "uAnimesearch",
   "version": "0.1.0",
   "description": "A Chrome Extension to search anime; 搜索动漫的插件;",
-  "icons": {
-    "16": "icons/128.png",
-    "32": "icons/128.png",
-    "48": "icons/128.png",
-    "128": "icons/128.png"
-  },
   "background": {
     "service_worker": "index.html"
   },
   "action": {
     "default_title": "uAnimesearch",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "./icons/128.png",
+      "32": "./icons/128.png",
+      "48": "./icons/128.png",
+      "128": "./icons/128.png"
+    },
+    "icons": {
+      "16": "./icons/128.png",
+      "32": "./icons/128.png",
+      "48": "./icons/128.png",
+      "128": "./icons/128.png"
+    }
+  },
+  "icons": {
+    "16": "./icons/128.png",
+    "32": "./icons/128.png",
+    "48": "./icons/128.png",
+    "128": "./icons/128.png"
   },
   "host_permissions": [
-		"*://*/*"
-	],
+    "*://*/*"
+  ],
   "permissions": [
     "activeTab",
-    "tabs",  
-    "webRequest", 
-    "webRequestBlocking"
+    "tabs",
+    "declarativeNetRequestFeedback",
+    "declarativeNetRequest"
   ]
 }

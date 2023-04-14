@@ -18,7 +18,7 @@ const app = createApp(App)
 app.config.globalProperties.$ = jQuery
 app.config.globalProperties.uCore = uCore
 app.config.globalProperties.uExt = uExt
-app.config.globalProperties.toRaw = function(obj) {
+app.config.globalProperties.toRaw = function (obj) {
     return JSON.parse(JSON.stringify(obj))
 }
 
