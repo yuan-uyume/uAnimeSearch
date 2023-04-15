@@ -236,7 +236,7 @@ export default {
                 })
                 return
             }
-            if (sources.length <= 0) {
+            if (sources.length <= 0 && !this.openTest) {
                 this.$message({
                     type: "info",
                     message: "搜索源未选择"
@@ -245,7 +245,7 @@ export default {
             }
             let size = this.page.size
             if (this.openTest) {
-                sources = [JSON.parse(this.testSource)]
+                sources = [JSON.parse(this.testSource || localStorage['testSource'])]
                 console.log("testSource:", this.testSource, sources);
             }
             let loading = this.$loading({

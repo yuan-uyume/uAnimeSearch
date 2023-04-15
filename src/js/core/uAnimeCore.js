@@ -40,7 +40,7 @@ const uAnimeCore = {
         }
         return false
     },
-    search: function (components, word, limit, callback) {
+    search: function (components, word, limit, callback, collectComponentsResultCallback) {
         let data = []
         let complated = []
         let collectComponentsResult = async function (res) {
@@ -50,6 +50,7 @@ const uAnimeCore = {
                 uAnimeCore.error(res.component, res.msg, res.data)
             }
             if (res.data && res.data.length > 0) {
+                uAnimeCore.log(res.component, 'addEpsInfoToResultItemsByHtml')
                 await uAnimeCore.addEpsInfoToResultItemsByHtml(res.component, res.data)
                 data.push(...res.data)
             }
@@ -66,6 +67,9 @@ const uAnimeCore = {
                     data: data
                 })
             }
+        }
+        if (collectComponentsResultCallback && typeof collectComponentsResultCallback == 'function') {
+            collectComponentsResult = collectComponentsResultCallback
         }
         if (uAnimeCore.sources.length < 1) {
             uAnimeCore.initCore()
@@ -94,28 +98,29 @@ const uAnimeCore = {
                 let dom = uAnimeCore.transaleTextToDom(html)
                 let page = uAnimeCore.parsePage(component, dom)
                 uAnimeCore.log(component, "search word: " + word, page)
-                if (!page || page.pageNum == undefined || page.pageNum == NaN || page.pageNum < 1) {
+                let data = []
+                let currentPage = 1
+                let resultItems = uAnimeCore.getResultItemFromHtml(html, component)   
+                if (resultItems.length == 0) {
                     return callback({
                         type: 1,
+                        msg: "搜索成功，无结果！",
                         component: component,
-                        msg: "获取番剧页数失败，番剧消失在了异次元",
                         data: []
                     })
                 }
-                // 已经获取到这次搜索的页码数据，获取第一页的数据
-                let resultItems = uAnimeCore.getResultItemFromHtml(html, component)
-                if (resultItems.length == 0) {
-                    throw new Error("resultItems.length == 0")
+                // 如果没有结束页码，就一页一页找找到没有为止
+                if (!page || page.pageNum == undefined || page.pageNum == NaN || page.pageNum < 1) {
+                    page.pageNum = -1
                 }
-                let data = []
-                let currentPage = 1
+                // 已经获取到这次搜索的页码数据，获取第一页的数据
                 // 收集结果并判断是否结束
                 uAnimeCore.collectSearchResult(component, data, resultItems, word, currentPage, page, limit)
                     .then(result => {
                         if (result) {
                             callback({
                                 type: 0,
-                                msg: "搜索成功！",
+                                msg: "搜索成功！只有一页",
                                 component: component,
                                 data: data
                             })
@@ -133,7 +138,8 @@ const uAnimeCore = {
                 addData = addData.slice(0, limit - data.length)
             }
             data.push(...addData)
-            if (data.length == page.total || data.length == limit) {
+            // page.pageNum == -1 时无法获取页码 那就一页一页找，站到没有为止
+            if (data.length == page.total || data.length == limit || currentPage == page.pageNum) {
                 resolve(true)
             } else {
                 resolve(false)
@@ -200,7 +206,7 @@ const uAnimeCore = {
             pageNum: parseInt(pageNum),
             limit: parseInt(component.htmlDataTrans.page.limit)
         }
-        if (page && (page.pageNum == undefined || page.pageNum == null)) {
+        if (page && (page.pageNum == undefined || page.pageNum == null || page.pageNum == NaN)) {
             page.pageNum = uAnimeCore.getPageNum(page.total, component.htmlDataTrans.page.limit)
         }
         return page
@@ -295,14 +301,19 @@ const uAnimeCore = {
                 let resultItems = uAnimeCore.getResultItemFromHtml(resultHtml, component)
                 // 发送网络请求获取结果
                 if (resultItems.length == 0) {
-                    throw new Error("resultItems.length == 0")
+                    return callback({
+                        type: 0,
+                        msg: "搜索成功(中止)！page:"+currentPage,
+                        component: component,
+                        data: data
+                    })
                 }
                 uAnimeCore.collectSearchResult(component, data, resultItems, word, currentPage, page, limit)
                     .then(result => {
                         if (result) {
                             callback({
                                 type: 0,
-                                msg: "搜索成功！",
+                                msg: "搜索成功！page:"+currentPage,
                                 component: component,
                                 data: data
                             })
@@ -338,6 +349,9 @@ const uAnimeCore = {
                             }
                             parseItem[key] = component.search.site + parseItem[key]
                         }
+                        if (parseItem[key].startsWith("/")) {
+                            parseItem[key] = component.search.site + parseItem[key]
+                        }
                     } else {
                         parseItem[key] = parseItem[key].replaceAll("\t", "").replaceAll("/", "")
                     }
@@ -355,6 +369,10 @@ const uAnimeCore = {
     addEpsInfoToResultItemsByHtml: function (component, resultItems) {
         return new Promise(resolve => {
             let i = 0
+            if (resultItems.length == 0) {
+                return resolve(resultItems)
+            }
+            let j = 0
             for (let item of resultItems) {
                 if (item.url && item.url.trim() != '') {
                     uAnimeCore.getHtmlFromUrl(component, item.url).then(html => {
@@ -385,6 +403,10 @@ const uAnimeCore = {
                             resolve(resultItems)
                         }
                     })
+                } else {
+                    if (++j >= resultItems.length) {
+                        resolve(resultItems)
+                    }
                 }
             }
         })
