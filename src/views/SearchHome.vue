@@ -236,7 +236,7 @@ export default {
                 })
                 return
             }
-            if (sources.length <= 0) {
+            if (sources.length <= 0 && !this.openTest) {
                 this.$message({
                     type: "info",
                     message: "搜索源未选择"
