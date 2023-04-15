@@ -420,7 +420,7 @@
                             "a",
                             0
                         ],
-                        "attr": "innerText",
+                        "attr": "title",
                         "clean": ""
                     },
                     "info": {
