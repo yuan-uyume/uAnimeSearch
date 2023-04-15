@@ -194,7 +194,7 @@ const uAnimeCore = {
     },
     parsePage: function (component, dom) {
         let total = uAnimeCore.parseDom(dom, component.htmlDataTrans.page.total)
-        let pageNum = uAnimeCore.parseDom(dom, component.htmlDataTrans.page.total)
+        let pageNum = uAnimeCore.parseDom(dom, component.htmlDataTrans.page.pageNum)
         let page = {
             total: parseInt(total),
             pageNum: parseInt(pageNum),
@@ -243,7 +243,7 @@ const uAnimeCore = {
                 return null
             }
         }
-        if ('clean' in rule && rule.clean.trim() != '') {
+        if ('clean' in rule && rule.clean.trim() != '' && typeof find == 'string' && find) {
             let reg = RegExp(rule.clean);
             if (find.match(reg)) {
                 find = RegExp.$1
