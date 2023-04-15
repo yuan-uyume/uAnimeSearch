@@ -384,24 +384,22 @@
                     "total": {
                         "find": [
                             "script",
-                            5
+                            12
                         ],
                         "attr": "innerText",
                         "clean": "(\\d+)"
                     },
                     "pageNum": {
-                        "find": [
-                            ".hidden_xs",
-                            3
-                        ],
-                        "attr": "href",
-                        "clean": "(\\d+)"
+                        "find": [],
+                        "attr": "",
+                        "clean": ""
                     },
-                    "limit": "10"
+                    "limit": "36"
                 },
                 "anime": {
                     "arr": {
                         "find": [
+                            ".vodlist.clearfix",
                             ".searchlist_item"
                         ]
                     },
@@ -420,7 +418,7 @@
                             "a",
                             0
                         ],
-                        "attr": "innerText",
+                        "attr": "title",
                         "clean": ""
                     },
                     "info": {
@@ -463,8 +461,8 @@
                     }
                 }
             },
-            "md5": "7e56fba59b415ab277dc437929740a67"
+            "md5": "94e95e633380adc38463b55b16efe7a2"
         }
     ],
-    "md5": "eaaac2207a2c5ad3f40c8d41c060ffcb"
+    "md5": "2ea169f392b924b440c4a8c9e7f966f5"
 }

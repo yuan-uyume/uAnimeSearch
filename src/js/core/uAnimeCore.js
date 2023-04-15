@@ -87,8 +87,8 @@ const uAnimeCore = {
         // limit 为限制属性
         uAnimeCore.getSearchPageHtml(component, word)
             .then(html => {
-                if (html == null) {
-                    callback({
+                if (!html || html.trim() == '') {
+                    return callback({
                         type: 1,
                         component: component,
                         msg: "获取番剧页html失败，番剧消失在了异次元",
@@ -98,6 +98,14 @@ const uAnimeCore = {
                 let dom = uAnimeCore.transaleTextToDom(html)
                 let page = uAnimeCore.parsePage(component, dom)
                 uAnimeCore.log(component, "search word: " + word, page)
+                if (page && (page.pageNum == 0 || page.total == 0)) {
+                    return callback({
+                        type: 1,
+                        msg: "搜索成功，无结果！",
+                        component: component,
+                        data: []
+                    })
+                }
                 let data = []
                 let currentPage = 1
                 let resultItems = uAnimeCore.getResultItemFromHtml(html, component)   
@@ -110,7 +118,7 @@ const uAnimeCore = {
                     })
                 }
                 // 如果没有结束页码，就一页一页找找到没有为止
-                if (!page || page.pageNum == undefined || page.pageNum == NaN || page.pageNum < 1) {
+                if (!page || page.pageNum == undefined || page.pageNum == NaN) {
                     page.pageNum = -1
                 }
                 // 已经获取到这次搜索的页码数据，获取第一页的数据
@@ -298,6 +306,14 @@ const uAnimeCore = {
         fetch(url)
             .then(res => res.text())
             .then(resultHtml => {
+                if(!resultHtml || resultHtml.trim() == '') {
+                    return callback({
+                        type: 0,
+                        msg: "搜索成功(中止)！page:"+currentPage,
+                        component: component,
+                        data: data
+                    })
+                }
                 let resultItems = uAnimeCore.getResultItemFromHtml(resultHtml, component)
                 // 发送网络请求获取结果
                 if (resultItems.length == 0) {
