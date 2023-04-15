@@ -245,7 +245,7 @@ export default {
             }
             let size = this.page.size
             if (this.openTest) {
-                sources = [JSON.parse(this.testSource)]
+                sources = [JSON.parse(this.testSource || localStorage['testSource'])]
                 console.log("testSource:", this.testSource, sources);
             }
             let loading = this.$loading({

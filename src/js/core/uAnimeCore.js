@@ -50,6 +50,7 @@ const uAnimeCore = {
                 uAnimeCore.error(res.component, res.msg, res.data)
             }
             if (res.data && res.data.length > 0) {
+                uAnimeCore.log(res.component, 'addEpsInfoToResultItemsByHtml')
                 await uAnimeCore.addEpsInfoToResultItemsByHtml(res.component, res.data)
                 data.push(...res.data)
             }
@@ -99,10 +100,10 @@ const uAnimeCore = {
                 let resultItems = uAnimeCore.getResultItemFromHtml(html, component)   
                 if (resultItems.length == 0) {
                     return callback({
-                        type: 0,
-                        msg: "搜索成功！",
+                        type: 1,
+                        msg: "搜索成功，无结果！",
                         component: component,
-                        data: data
+                        data: []
                     })
                 }
                 // 如果没有结束页码，就一页一页找找到没有为止
@@ -116,7 +117,7 @@ const uAnimeCore = {
                         if (result) {
                             callback({
                                 type: 0,
-                                msg: "搜索成功！",
+                                msg: "搜索成功！只有一页",
                                 component: component,
                                 data: data
                             })
@@ -299,7 +300,7 @@ const uAnimeCore = {
                 if (resultItems.length == 0) {
                     return callback({
                         type: 0,
-                        msg: "搜索成功(中止)！",
+                        msg: "搜索成功(中止)！page:"+currentPage,
                         component: component,
                         data: data
                     })
@@ -309,7 +310,7 @@ const uAnimeCore = {
                         if (result) {
                             callback({
                                 type: 0,
-                                msg: "搜索成功！",
+                                msg: "搜索成功！page:"+currentPage,
                                 component: component,
                                 data: data
                             })
@@ -362,6 +363,10 @@ const uAnimeCore = {
     addEpsInfoToResultItemsByHtml: function (component, resultItems) {
         return new Promise(resolve => {
             let i = 0
+            if (resultItems.length == 0) {
+                return resolve(resultItems)
+            }
+            let j = 0
             for (let item of resultItems) {
                 if (item.url && item.url.trim() != '') {
                     uAnimeCore.getHtmlFromUrl(component, item.url).then(html => {
@@ -392,6 +397,10 @@ const uAnimeCore = {
                             resolve(resultItems)
                         }
                     })
+                } else {
+                    if (++j >= resultItems.length) {
+                        resolve(resultItems)
+                    }
                 }
             }
         })

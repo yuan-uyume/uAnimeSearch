@@ -369,7 +369,89 @@
                     }
                 }
             },
-            "md5": "13b03a95131e002a6843c4c4e462121b"
+            "md5": "9e6a6124c2e0aaa1e81f0901a5db22ce"
+        },
+        {
+            "name": "test",
+            "md5": "c732d7304ed4309f7653e6e3897541d9",
+            "search": {
+                "api": false,
+                "site": "https://skr-cc.com",
+                "path": "/vodsearch/-------------/?wd={1}",
+                "page": "/vodsearch/{1}----------{2}---/"
+            },
+            "htmlDataTrans": {
+                "page": {
+                    "total": {
+                        "find": [
+                            "script",
+                            5
+                        ],
+                        "attr": "innerText",
+                        "clean": "(\\d+)"
+                    },
+                    "pageNum": {
+                        "find": [
+                            ".hidden_xs",
+                            3
+                        ],
+                        "attr": "href",
+                        "clean": "(\\d+)"
+                    },
+                    "limit": "10"
+                },
+                "anime": {
+                    "arr": {
+                        "find": [
+                            ".searchlist_item"
+                        ]
+                    },
+                    "image": {
+                        "find": [
+                            "searchlist_img",
+                            "img",
+                            0
+                        ],
+                        "attr": "data-original",
+                        "clean": ""
+                    },
+                    "title": {
+                        "find": [
+                            "h4",
+                            -1,
+                            0
+                        ],
+                        "attr": "innerText",
+                        "clean": ""
+                    },
+                    "info": {
+                        "find": [
+                            "vodlist_sub hidden_xs",
+                            0
+                        ],
+                        "attr": "innerText",
+                        "clean": ""
+                    },
+                    "url": {
+                        "find": [
+                            "seebtn",
+                            0
+                        ],
+                        "attr": "href",
+                        "clean": ""
+                    },
+                    "eps": {
+                        "arr": {
+                            "find": [
+                                ".scroll-content",
+                                1,
+                                "a"
+                            ],
+                            "clean": ""
+                        }
+                    }
+                }
+            }
         }
     ],
     "md5": "031c7e7712e84459a7f99e408288b5f8"
