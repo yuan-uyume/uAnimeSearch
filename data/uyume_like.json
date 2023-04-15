@@ -1,6 +1,6 @@
 {
     "name": "uyume_like",
-    "url": "",
+    "url": "https://raw.githubusercontent.com/yuan-uyume/uAnimeSearch/master/data/uyume_like.json",
     "id": "uyume_like",
     "rules": [
         {
@@ -186,7 +186,104 @@
                 }
             },
             "md5": "e3eb6651b25252ef2d13da1a008bd5bd"
+        },
+        {
+            "name": "zzzfun动漫",
+            "search": {
+                "api": false,
+                "site": "http://www.zzzfun.vip",
+                "path": "/vod_search.html?wd={1}",
+                "page": "/vod_search_page_{2}_wd_{1}.html"
+            },
+            "htmlDataTrans": {
+                "page": {
+                    "total": {
+                        "find": [
+                            "#list-focus",
+                            "script",
+                            0
+                        ],
+                        "attr": "innerText",
+                        "clean": "(\\d+)"
+                    },
+                    "pageNum": {
+                        "find": [
+                            ".page_link",
+                            8
+                        ],
+                        "attr": "href",
+                        "clean": "page_(\\d+)"
+                    },
+                    "limit": "10"
+                },
+                "anime": {
+                    "arr": {
+                        "find": [
+                            ".show-list",
+                            "li"
+                        ]
+                    },
+                    "image": {
+                        "find": [
+                            ".play-img",
+                            "img",
+                            0
+                        ],
+                        "attr": "src",
+                        "clean": ""
+                    },
+                    "title": {
+                        "find": [
+                            "h2",
+                            "a",
+                            0
+                        ],
+                        "attr": "innerText",
+                        "clean": ""
+                    },
+                    "info": {
+                        "find": [
+                            ".juqing",
+                            "dd",
+                            "p",
+                            0
+                        ],
+                        "attr": "innerText",
+                        "clean": ""
+                    },
+                    "url": {
+                        "find": [
+                            "h2",
+                            "a",
+                            0
+                        ],
+                        "attr": "href",
+                        "clean": ""
+                    },
+                    "eps": {
+                        "arr": {
+                            "find": [
+                                ".episode.clearfix",
+                                0,
+                                "a"
+                            ],
+                            "clean": ""
+                        },
+                        "title": {
+                            "find": [],
+                            "attr": "innerText",
+                            "clean": ""
+                        },
+                        "url": {
+                            "find": [],
+                            "attr": "href",
+                            "clean": ""
+                        }
+                    }
+                }
+            },
+            "md5": "13b03a95131e002a6843c4c4e462121b"
         }
     ],
-    "md5": "87624e67c3779adc39683d8aa356c3be"
+    "md5": "031c7e7712e84459a7f99e408288b5f8"
 }
