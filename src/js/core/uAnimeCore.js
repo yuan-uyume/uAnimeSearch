@@ -94,7 +94,7 @@ const uAnimeCore = {
                 let dom = uAnimeCore.transaleTextToDom(html)
                 let page = uAnimeCore.parsePage(component, dom)
                 uAnimeCore.log(component, "search word: " + word, page)
-                if (!page || page.pageNum == undefined || page.pageNum == null || page.pageNum < 1) {
+                if (!page || page.pageNum == undefined || page.pageNum == NaN || page.pageNum < 1) {
                     return callback({
                         type: 1,
                         component: component,
