@@ -22,13 +22,19 @@
                 <el-row style="margin-top: 24px;margin-left: -7px;" gutter="30" v-show="isMore">
                     <el-col style="flex: 1;margin-bottom: 10px;max-width: 200px;min-width: 200px;" span="7">
                         <el-tree-select placeholder="选择筛选源" v-model="treeValue" :data="treeData" multiple
-                            :render-after-expand="false" show-checkbox />
+                            :render-after-expand="false" show-checkbox>
+                            <template #default="{ data: { label, sys } }">
+                                <span class="custom-tree-node">
+                                    <span :style="{ color: sys ? 'darkseagreen' : '' }">{{ label }}</span>
+                                </span>
+                            </template>
+                        </el-tree-select>
                     </el-col>
                     <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="10">
-                        <el-input type="text" placeholder="筛选内容..." v-model="search.filterValue"></el-input>
+                        <el-input clearable type="text" placeholder="筛选内容..." v-model="search.filterValue"></el-input>
                     </el-col>
                     <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="7">
-                        <el-button>筛选</el-button>
+                        <el-button @click="genFilterSearchData">筛选</el-button>
                         <div style="float: right;">
                             <el-checkbox style="margin-right: 14px;" v-model="openTest">启动测试</el-checkbox>
                             <el-button @click="test(true)">测试源设置</el-button>
@@ -40,6 +46,7 @@
                             <template #footer>
                                 <span>
                                     <el-button @click="genSource">生成可复制搜索源文本</el-button>
+                                    <el-button @click="saveSource" disabled>保存搜索源</el-button>
                                     <el-button @click="test(false)">确定</el-button>
                                 </span>
                             </template>
@@ -79,7 +86,7 @@
     </div>
 </template>
 
-<style scoped>
+<style>
 .custom-tree-node {
     flex: 1;
     display: flex;
@@ -87,6 +94,11 @@
     justify-content: space-between;
     font-size: 16px;
     padding-right: 8px;
+}
+
+.el-select__tags {
+    max-height: 28px;
+    overflow-y: auto;
 }
 </style>
 
@@ -293,6 +305,8 @@ export default {
             selectValue = this.toRaw(selectValue)
             console.log("selectValue :", selectValue);
             this.search.components = selectValue
+            this.genTreeData()
+            console.log("treeData :", this.treeData);
             done()
         },
         saveEnableComponentsHash() {
@@ -316,7 +330,7 @@ export default {
                     type: 'success',
                     message: '加载搜索源启用配置成功...'
                 })
-                this.drawer = false
+                this.$refs.elDrawer.handleClose()
                 this.$nextTick(() => { this.getQueryAndSearch() })
             })
         },
@@ -361,9 +375,44 @@ export default {
             console.log("genPageData end ...", size, pageData);
             this.changePage(1)
         },
+        genTreeData() {
+            let checkedNodes = this.$refs.sourcesTree.getCheckedNodes(false, true)
+            checkedNodes = this.toRaw(checkedNodes)
+            let subData = checkedNodes.filter(d => {
+                return !("children" in d)
+            })
+            checkedNodes = checkedNodes.filter(d => {
+                return 'children' in d
+            })
+            let data = []
+            console.log('checkedNodes', checkedNodes, 'subData', subData);
+            checkedNodes.map(d => {
+                let dd = {
+                    value: d.md5,
+                    label: d.name,
+                    children: []
+                }
+                d.children.map(d2 => {
+                    if (subData.find(d3 => {
+                        return d3.md5 == d2.md5
+                    }) != undefined) {
+                        let ddd = {
+                            value: d2.md5,
+                            label: d2.name,
+                        }
+                        dd.children.push(ddd)
+                    }
+                })
+                data.push(dd)
+            })
+            this.treeData = data
+        },
         genFilterSearchData() {
+            let treeValue = this.toRaw(this.treeValue)
+            let filterValue = this.search.filterValue.trim()
+            console.log('filterValue', filterValue, 'treeValue', treeValue);
             this.filterSearchData = this.searchData.filter(d => {
-                return this.search.filterValue == '' || d.title.find(this.search.filterValue) || d.info.find(this.search.filterValue)
+                return (filterValue == '' || d.title.indexOf(filterValue) > 0 || d.info.indexOf(filterValue) > 0) && (treeValue.length == 0 || treeValue.includes(d.sourceHash))
             })
             this.genPageData(this.page.size)
         },
