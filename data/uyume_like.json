@@ -372,8 +372,7 @@
             "md5": "9e6a6124c2e0aaa1e81f0901a5db22ce"
         },
         {
-            "name": "test",
-            "md5": "c732d7304ed4309f7653e6e3897541d9",
+            "name": "樱舞动漫",
             "search": {
                 "api": false,
                 "site": "https://skr-cc.com",
@@ -408,8 +407,8 @@
                     },
                     "image": {
                         "find": [
-                            "searchlist_img",
-                            "img",
+                            ".searchlist_img",
+                            "a",
                             0
                         ],
                         "attr": "data-original",
@@ -417,8 +416,8 @@
                     },
                     "title": {
                         "find": [
-                            "h4",
-                            -1,
+                            ".vodlist_title",
+                            "a",
                             0
                         ],
                         "attr": "innerText",
@@ -426,7 +425,7 @@
                     },
                     "info": {
                         "find": [
-                            "vodlist_sub hidden_xs",
+                            ".vodlist_sub.hidden_xs",
                             0
                         ],
                         "attr": "innerText",
@@ -434,7 +433,8 @@
                     },
                     "url": {
                         "find": [
-                            "seebtn",
+                            ".vodlist_title",
+                            "a",
                             0
                         ],
                         "attr": "href",
@@ -443,16 +443,28 @@
                     "eps": {
                         "arr": {
                             "find": [
-                                ".scroll-content",
-                                1,
+                                ".play_list_box.hide.show",
+                                ".playlist_full",
+                                "ul",
                                 "a"
                             ],
+                            "clean": ""
+                        },
+                        "title": {
+                            "find": [],
+                            "attr": "innerText",
+                            "clean": ""
+                        },
+                        "url": {
+                            "find": [],
+                            "attr": "href",
                             "clean": ""
                         }
                     }
                 }
-            }
+            },
+            "md5": "7e56fba59b415ab277dc437929740a67"
         }
     ],
-    "md5": "031c7e7712e84459a7f99e408288b5f8"
+    "md5": "eaaac2207a2c5ad3f40c8d41c060ffcb"
 }

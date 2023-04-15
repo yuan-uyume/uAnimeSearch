@@ -40,7 +40,7 @@ const uAnimeCore = {
         }
         return false
     },
-    search: function (components, word, limit, callback) {
+    search: function (components, word, limit, callback, collectComponentsResultCallback) {
         let data = []
         let complated = []
         let collectComponentsResult = async function (res) {
@@ -67,6 +67,9 @@ const uAnimeCore = {
                     data: data
                 })
             }
+        }
+        if (collectComponentsResultCallback && typeof collectComponentsResultCallback == 'function') {
+            collectComponentsResult = collectComponentsResultCallback
         }
         if (uAnimeCore.sources.length < 1) {
             uAnimeCore.initCore()
@@ -344,6 +347,9 @@ const uAnimeCore = {
                             if (!parseItem[key].startsWith("/")) {
                                 parseItem[key] = '/' + parseItem[key]
                             }
+                            parseItem[key] = component.search.site + parseItem[key]
+                        }
+                        if (parseItem[key].startsWith("/")) {
                             parseItem[key] = component.search.site + parseItem[key]
                         }
                     } else {
