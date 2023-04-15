@@ -2,7 +2,9 @@
 
 My Chrome Extension to search anime
 
-## Features
+谷歌浏览器插件用于搜索动漫
+
+## 功能
 
 - [x] 搜索
   - [x] 搜索动漫 
@@ -31,9 +33,11 @@ My Chrome Extension to search anime
   - [ ] 感谢
   - [ ] 自动更新
 
-## Install
+## 安装
+1. 下载zip文件，在浏览器中加载已解压的插件
+2. 下载crx文件，将插件id添加到chrome浏览器的白名单后，在浏览器中安装crx文件
 
-[**Chrome** extension]()
+[**Chrome** extension uAnimeSearch 下载地址](https://github.com/yuan-uyume/uAnimeSearch/releases/latest)
 
 ## Contribution
 
