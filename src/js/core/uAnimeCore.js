@@ -94,7 +94,7 @@ const uAnimeCore = {
                 let dom = uAnimeCore.transaleTextToDom(html)
                 let page = uAnimeCore.parsePage(component, dom)
                 uAnimeCore.log(component, "search word: " + word, page)
-                if (!page || page.pageNum == undefined || page.pageNum == null || page.pageNum < 1) {
+                if (!page || page.pageNum == undefined || page.pageNum == NaN || page.pageNum < 1) {
                     return callback({
                         type: 1,
                         component: component,
@@ -194,7 +194,7 @@ const uAnimeCore = {
     },
     parsePage: function (component, dom) {
         let total = uAnimeCore.parseDom(dom, component.htmlDataTrans.page.total)
-        let pageNum = uAnimeCore.parseDom(dom, component.htmlDataTrans.page.total)
+        let pageNum = uAnimeCore.parseDom(dom, component.htmlDataTrans.page.pageNum)
         let page = {
             total: parseInt(total),
             pageNum: parseInt(pageNum),
@@ -243,7 +243,7 @@ const uAnimeCore = {
                 return null
             }
         }
-        if ('clean' in rule && rule.clean.trim() != '') {
+        if ('clean' in rule && rule.clean.trim() != '' && typeof find == 'string' && find) {
             let reg = RegExp(rule.clean);
             if (find.match(reg)) {
                 find = RegExp.$1
