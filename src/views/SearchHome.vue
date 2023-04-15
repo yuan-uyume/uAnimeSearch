@@ -22,13 +22,19 @@
                 <el-row style="margin-top: 24px;margin-left: -7px;" gutter="30" v-show="isMore">
                     <el-col style="flex: 1;margin-bottom: 10px;max-width: 200px;min-width: 200px;" span="7">
                         <el-tree-select placeholder="选择筛选源" v-model="treeValue" :data="treeData" multiple
-                            :render-after-expand="false" show-checkbox />
+                            :render-after-expand="false" show-checkbox>
+                            <template #default="{ data: { label, sys } }">
+                                <span class="custom-tree-node">
+                                    <span :style="{ color: sys ? 'darkseagreen' : '' }">{{ label }}</span>
+                                </span>
+                            </template>
+                        </el-tree-select>
                     </el-col>
                     <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="10">
-                        <el-input type="text" placeholder="筛选内容..." v-model="search.filterValue"></el-input>
+                        <el-input clearable type="text" placeholder="筛选内容..." v-model="search.filterValue"></el-input>
                     </el-col>
                     <el-col style="flex: 1;margin-bottom: 10px;min-width: 200px;" span="7">
-                        <el-button>筛选</el-button>
+                        <el-button @click="genFilterSearchData">筛选</el-button>
                         <div style="float: right;">
                             <el-checkbox style="margin-right: 14px;" v-model="openTest">启动测试</el-checkbox>
                             <el-button @click="test(true)">测试源设置</el-button>
@@ -40,6 +46,7 @@
                             <template #footer>
                                 <span>
                                     <el-button @click="genSource">生成可复制搜索源文本</el-button>
+                                    <el-button @click="saveSource" disabled>保存搜索源</el-button>
                                     <el-button @click="test(false)">确定</el-button>
                                 </span>
                             </template>
@@ -63,7 +70,8 @@
                 :page-sizes="[10, 20, 30]" :disabled="disabled" background layout="total, sizes, prev, pager, next, jumper"
                 :total="pageTotal" @size-change="genPageData" @current-change="changePage" />
         </el-row>
-        <el-drawer v-model="drawer" title="搜索源启用配置" :before-close="handleDrawerClose">
+        <el-drawer ref="elDrawer" v-model="drawer" title="搜索源启用配置" :before-close="handleDrawerClose"
+            @close="saveEnableComponentsHash">
             <div>
                 <el-tree ref="sourcesTree" show-checkbox :data="sources" node-key="md5" default-expand-all
                     :expand-on-click-node="false">
@@ -78,7 +86,7 @@
     </div>
 </template>
 
-<style scoped>
+<style>
 .custom-tree-node {
     flex: 1;
     display: flex;
@@ -86,6 +94,11 @@
     justify-content: space-between;
     font-size: 16px;
     padding-right: 8px;
+}
+
+.el-select__tags {
+    max-height: 28px;
+    overflow-y: auto;
 }
 </style>
 
@@ -108,6 +121,7 @@ export default {
             // showSearchData: [{
             //     title: "aaa1111111111111111111111112111111111111111111111111111112111111111",
             //     url: "#",
+            //     tags: 'aaa,dasd,d2qdqa,adsas,asd',
             //     info: "asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd ",
             //     eps: [{
             //         title: "a",
@@ -149,7 +163,8 @@ export default {
                 value: '',
                 filterValue: '',
                 components: []
-            }
+            },
+            closeDrawer: null
         }
     },
     computed: {
@@ -181,7 +196,7 @@ export default {
     },
     mounted() {
         this.loadEnableComponentsAndSelect()
-        this.$nextTick(this.getQueryAndSearch)
+
     },
     methods: {
         test(flag) {
@@ -193,9 +208,9 @@ export default {
             }
         },
         genSource() {
-            let {md5, ...obj} = JSON.parse(this.testSource)
+            let { md5, ...obj } = JSON.parse(this.testSource)
             let tObjMd5 = uExt.md5(obj)
-            obj.md5 =  tObjMd5
+            obj.md5 = tObjMd5
             this.testSource = JSON.stringify(obj)
         },
         filterSearchResult() {
@@ -247,9 +262,9 @@ export default {
             })
         },
         getSearchComponents() {
-            let data = this.uCore.getSearchSources(true)
+            let data = Object.assign({}, this.uCore.getSearchSources(true));
             console.log("created data,", data);
-            this.searchComponents = data.userComponents
+            this.searchComponents = Object.assign({}, data.userComponents);
             if (data.componentsStorage == undefined || Object.keys(data.componentsStorage).length == 0) {
                 let componentUp = {
                     ghproxy: true,
@@ -260,20 +275,21 @@ export default {
                 if ('ghproxy' in componentUp && componentUp.ghproxy) {
                     url = "https://ghproxy.com/" + url
                 }
+                let loading = this.$loading({
+                    lock: true,
+                    text: 'Loading',
+                    background: 'rgba(0, 0, 0, 0.7)',
+                })
                 this.uExt.loadFormUrl(url, (d) => {
+                    loading.close()
                     if (d == null) {
                         return
                     }
-                    data.componentsStorage = d
-                    data.componentsStorage.sys = true
-                    for (let o of data.componentsStorage.rules) {
-                        o.sys = true
-                    }
-                    this.searchComponents[data.componentsStorage.md5] = data.componentsStorage
                     this.$message({
                         message: '更新搜索源成功',
                         type: 'success',
                     })
+                    this.getSearchComponents()
                 }, true)
             } else {
                 data.componentsStorage.sys = true
@@ -281,52 +297,61 @@ export default {
                     o.sys = true
                 }
                 this.searchComponents[data.componentsStorage.md5] = data.componentsStorage
+                console.log("searchComponents load", this.toRaw(this.searchComponents));
             }
 
         },
-        handleDrawerClose(ignore) {
+        handleDrawerClose(done) {
             let selectValue = this.$refs.sourcesTree.getCheckedNodes(true, false)
             selectValue = this.toRaw(selectValue)
             console.log("selectValue :", selectValue);
             this.search.components = selectValue
+            this.genTreeData()
+            console.log("treeData :", this.treeData);
+            done()
+        },
+        saveEnableComponentsHash() {
+            let selectValue = this.$refs.sourcesTree.getCheckedNodes(true, false)
             let componentsHashSet = selectValue.map((item, index) => {
                 return item.md5
             })
-            if (ignore != true) {
-                console.log('save enableComponents hashset', componentsHashSet);
-                window.localStorage['enableComponents'] = JSON.stringify(componentsHashSet)
-                this.$message({
-                    type: 'success',
-                    message: '保存搜索源启用配置成功...'
-                })
-            }
-            this.drawer = false
+            console.log('save enableComponents hashset', componentsHashSet);
+            window.localStorage['enableComponents'] = JSON.stringify(componentsHashSet)
+            this.$message({
+                type: 'success',
+                message: '保存搜索源启用配置成功...'
+            })
         },
         loadEnableComponentsAndSelect() {
             this.drawer = true
-            let enableComponents = JSON.parse(window.localStorage['enableComponents'] ? window.localStorage['enableComponents'] : [])
+            let enableComponents = JSON.parse(window.localStorage['enableComponents'] ? window.localStorage['enableComponents'] : '[]')
             this.$nextTick(() => {
                 this.$refs.sourcesTree.setCheckedKeys(enableComponents)
                 this.$message({
                     type: 'success',
                     message: '加载搜索源启用配置成功...'
                 })
-                this.handleDrawerClose()
+                this.$refs.elDrawer.handleClose()
+                this.$nextTick(() => { this.getQueryAndSearch() })
             })
         },
         getQueryAndSearch() {
             let params = this.$route.query
             console.log('path params: ', params);
-            if ('value' in params && params.value.trim() != '') {
-                this.search.value = params.value.trim()
+            let a = 'value' in params && params.value != ''
+            let b = 'type' in params && params.type == 0
+            if (a || b) {
                 // 全选搜索组件
-                if (params.type && params.type == 0) {
+                if (b) {
                     this.$nextTick(() => {
                         this.$refs.sourcesTree.setCheckedNodes(this.sources)
-                        this.$nextTick(() => {
-                            this.handleDrawerClose(true)
-                            this.onSearch()
-                        })
+                        this.search.components = this.$refs.sourcesTree.getCheckedNodes(true, false)
+                        if (a) {
+                            this.search.value = params.value.trim()
+                            this.$nextTick(() => {
+                                this.onSearch()
+                            })
+                        }
                     })
                 }
             }
@@ -351,9 +376,44 @@ export default {
             console.log("genPageData end ...", size, pageData);
             this.changePage(1)
         },
+        genTreeData() {
+            let checkedNodes = this.$refs.sourcesTree.getCheckedNodes(false, true)
+            checkedNodes = this.toRaw(checkedNodes)
+            let subData = checkedNodes.filter(d => {
+                return !("children" in d)
+            })
+            checkedNodes = checkedNodes.filter(d => {
+                return 'children' in d
+            })
+            let data = []
+            console.log('checkedNodes', checkedNodes, 'subData', subData);
+            checkedNodes.map(d => {
+                let dd = {
+                    value: d.md5,
+                    label: d.name,
+                    children: []
+                }
+                d.children.map(d2 => {
+                    if (subData.find(d3 => {
+                        return d3.md5 == d2.md5
+                    }) != undefined) {
+                        let ddd = {
+                            value: d2.md5,
+                            label: d2.name,
+                        }
+                        dd.children.push(ddd)
+                    }
+                })
+                data.push(dd)
+            })
+            this.treeData = data
+        },
         genFilterSearchData() {
+            let treeValue = this.toRaw(this.treeValue)
+            let filterValue = this.search.filterValue.trim()
+            console.log('filterValue', filterValue, 'treeValue', treeValue);
             this.filterSearchData = this.searchData.filter(d => {
-                return this.search.filterValue == '' || d.title.find(this.search.filterValue) || d.info.find(this.search.filterValue)
+                return (filterValue == '' || d.title.indexOf(filterValue) > 0 || d.info.indexOf(filterValue) > 0) && (treeValue.length == 0 || treeValue.includes(d.sourceHash))
             })
             this.genPageData(this.page.size)
         },

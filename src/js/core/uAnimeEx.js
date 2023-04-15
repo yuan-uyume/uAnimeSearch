@@ -35,9 +35,11 @@ const uAnimeEx = {
         }
 
         if (sys) {
+            console.log("load json to componentsStorage", sys);
             window.localStorage["componentsStorage"] = JSON.stringify(json)
             callback(json)
         } else {
+            console.log("load json to userComponents", sys);
             let userComponentsHashAddr = JSON.parse(window.localStorage["userComponentsHash"] ? window.localStorage["userComponentsHash"] : "[]")
             let ohash = json.md5, flag = false
             for (let hash of userComponentsHashAddr) {

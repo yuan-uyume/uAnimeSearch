@@ -1,6 +1,6 @@
 <template>
     <div style="max-width: 950px;">
-        <el-row class="result-item" v-for="item, index in data" :key="item.hash">
+        <el-row class="result-item" v-for="item, index in data" :key="item.md5">
             <el-col span="6" style="min-width: 200px;max-width: 200px;padding-right: 18px;max-height: 200px;">
                 <div class="on-border">
                     <a target="_blank" :href="item.url" style="position: relative;bottom:7px;width: 100%;">
@@ -22,7 +22,7 @@
                                 {{ item.source }}（{{item.sourceHash}}）|| 
                             </span>
                             <span v-if="item.tags && item.tags.length > 0">
-                                <span class="result-item-tags" v-for="tag, index in item.tags"
+                                <span class="result-item-tags" v-for="tag, index in getTags(item.tags)"
                                 :key="index">{{ tag }}</span>
                             </span>
                         </div>
@@ -71,6 +71,13 @@ export default {
             } else {
                 return "http://" + url
             }
+        },
+        getTags(tags) {
+            if (typeof tags == 'string') {
+                tags = tags.replaceAll("，", ",")
+                tags = tags.split(",")
+            }
+            return tags
         }
     }
 }

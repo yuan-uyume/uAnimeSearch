@@ -149,15 +149,15 @@ const uAnimeCore = {
         console.log('load components', componentsStorage.name);
         let userComponentsHashAddr = JSON.parse(window.localStorage["userComponentsHash"] ? window.localStorage["userComponentsHash"] : "[]")
         if (userComponentsHashAddr == null || userComponentsHashAddr.length == 0) {
-            console.log('components load complated', sources);
+            console.log('components load complated 1', sources);
             return sources
         }
         for (let hash of userComponentsHashAddr) {
             let userComponents = JSON.parse(window.localStorage[hash])
             sources.userComponents[hash] = userComponents
-            console.log('load components', userComponents.name);
+            console.log('load components hash', userComponents.name);
         }
-        console.log('components load complated', sources);
+        console.log('components load complated 2', sources);
         return sources
     },
     saveSearchSources: function (data, sys) {
