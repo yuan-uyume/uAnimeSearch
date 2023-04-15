@@ -12,6 +12,7 @@ const uAnimeEx = {
             };
             reader.readAsText(file)
         } catch (e) {
+            console.error("fetch error:", e);
             callback(null)
         }
     },
@@ -23,7 +24,7 @@ const uAnimeEx = {
                 uAnimeEx.loadFormJson(json, callback, sys)
             })
             .catch(e => {
-                console.log("fetch error:", e);
+                console.error("fetch error:", e);
                 callback(null)
             })
     },
@@ -72,6 +73,7 @@ const uAnimeEx = {
                 callback(json)
             }
         } catch (e) {
+            console.error("fetch error:", e);
             callback(null)
         }
     },
