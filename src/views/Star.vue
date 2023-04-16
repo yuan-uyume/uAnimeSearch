@@ -26,7 +26,7 @@
         <div>
             <el-row style="padding-bottom: 32px;">
                 <el-col span="20">
-                    <AnimeResult :data="showData" @star="star"/>
+                    <AnimeResult :data="showData" @star="star" />
                 </el-col>
                 <el-col span="4">
                 </el-col>
@@ -75,10 +75,10 @@ export default {
         loadData() {
             this.data = JSON.parse(localStorage['starData'] || '[]')
             this.dataHash = JSON.parse(localStorage['starHash'] || '[]')
-        console.log('starData', this.data);
-        this.search()
-        this.genPageData()
-        this.genTags()
+            console.log('starData', this.data);
+            this.search()
+            this.genPageData()
+            this.genTags()
         },
         loadSources() {
             let data = Object.assign({}, this.uCore.getSearchSources(true));
@@ -152,8 +152,6 @@ export default {
                 })), 1)
                 localStorage['starHash'] = JSON.stringify(starHash)
                 localStorage['starData'] = JSON.stringify(starData)
-                data.star = false
-                this.loadData()
             }
         }
     }
