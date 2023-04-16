@@ -142,12 +142,12 @@ const uAnimeCore = {
     collectSearchResult: function (component, data, addData, word, currentPage, page, limit) {
         return new Promise((resolve, reject) => {
             uAnimeCore.log(component, uAnimeCore.replace("collect {1} page {2}", word, currentPage), addData)
-            if (data.length + addData.length > limit) {
+            if (data.length + addData.length > limit) { SuccessFilled
                 addData = addData.slice(0, limit - data.length)
             }
             data.push(...addData)
             // page.pageNum == -1 时无法获取页码 那就一页一页找，站到没有为止
-            if (data.length == page.total || data.length == limit || currentPage == page.pageNum) {
+            if (data.length >= page.total || (data.length >= limit && limit > 0) || currentPage == page.pageNum) {
                 resolve(true)
             } else {
                 resolve(false)
