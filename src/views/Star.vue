@@ -22,15 +22,15 @@
                 </div>
             </el-row>
         </div>
-        <el-divider/>
+        <el-divider />
         <div>
             <el-row style="padding-bottom: 32px;">
-                    <el-col span="20">
-                        <AnimeResult :data="showData" />
-                    </el-col>
-                    <el-col span="4">
-                    </el-col>
-                </el-row>
+                <el-col span="20">
+                    <AnimeResult :data="showData" @star="star"/>
+                </el-col>
+                <el-col span="4">
+                </el-col>
+            </el-row>
         </div>
     </div>
 </template>
@@ -48,11 +48,12 @@
 <script>
 import AnimeResult from '../components/AnimeResult.vue'
 export default {
-    components: {},
+    components: { AnimeResult },
     data() {
         return {
             tags: new Set(),
             data: [],
+            dataHash: [],
             sources: {},
             searchValue: "",
             showData: [],
@@ -68,11 +69,17 @@ export default {
         this.loadSources()
     },
     mounted() {
-        this.data = JSON.parse(localStorage['starData'] || '[]')
-        this.genPageData()
-        this.genTags()
+        this.loadData()
     },
     methods: {
+        loadData() {
+            this.data = JSON.parse(localStorage['starData'] || '[]')
+            this.dataHash = JSON.parse(localStorage['starHash'] || '[]')
+        console.log('starData', this.data);
+        this.search()
+        this.genPageData()
+        this.genTags()
+        },
         loadSources() {
             let data = Object.assign({}, this.uCore.getSearchSources(true));
             let sources = {}
@@ -100,15 +107,17 @@ export default {
             });
         },
         genPageData() {
-            let dd, ddd = [], i = 0
+            let dd = [], ddd = [], i = 0
             for (let d of this.filtersData) {
                 ddd.push(d)
                 if (++i >= this.page.pageSize) {
-                    dd.push(ddd)
                     ddd = []
                 }
+                dd.push(ddd)
             }
             this.pageData = dd
+            console.log("pageData", this.pageData);
+            this.changeShowData(1)
         },
         search(type) {
             let value = this.searchValue.trim()
@@ -122,6 +131,29 @@ export default {
                         return d.title.indexOf(value) || d.info.indexOf(value) || d.tags.indexOf(value)
                     })
                 }
+            } else {
+                this.filtersData = this.data
+            }
+        },
+        changeShowData(current) {
+            if (this.pageData.length > 0) {
+                this.showData = this.pageData[--current]
+                console.log("changeShowData", current, this.showData);
+            }
+        },
+        star(data) {
+            let starHash = this.dataHash
+            let starData = this.dataHash
+            console.log('data', data, 'starHash.includes(data.md5)', starHash.includes(data.md5));
+            if (starHash.includes(data.md5)) {
+                starHash.splice(starHash.indexOf(data.md5), 1)
+                starData.splice(starData.indexOf(starData.find(d => {
+                    return d.md5 == data.md5
+                })), 1)
+                localStorage['starHash'] = JSON.stringify(starHash)
+                localStorage['starData'] = JSON.stringify(starData)
+                data.star = false
+                this.loadData()
             }
         }
     }
