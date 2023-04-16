@@ -1,6 +1,6 @@
 <template>
     <div style="max-width: 950px;">
-        <el-row class="result-item" v-for="item, index in data" :key="item.md5">
+        <el-row :id="item.md5" class="result-item" v-for="item, index in data" :key="getAndSetMd5(item)+item.star">
             <el-col span="6" style="min-width: 200px;max-width: 200px;padding-right: 18px;max-height: 200px;">
                 <div class="on-border">
                     <a target="_blank" :href="item.url" style="position: relative;bottom:7px;width: 100%;">
@@ -12,21 +12,25 @@
             <el-col span="18" style="min-width: 600px;">
                 <div>
                     <div style="height: 36px;overflow-x: hidden;overflow-y: auto;">
-                        <el-link :title="item.title" style="color: #00bd7e;margin-right: 65px;" :underline="false" :href="item.url" target="_blank"  rel="noopener noreferrer">
-                            <h2 style="overflow: hidden;width: 100%;max-width: 600px;word-wrap:normal;text-overflow: ellipsis">{{ item.title }}</h2>
+                        <el-link :title="item.title" style="color: #00bd7e;margin-right: 65px;" :underline="false"
+                            :href="item.url" target="_blank" rel="noopener noreferrer">
+                            <h2
+                                style="overflow: hidden;width: 100%;max-width: 600px;word-wrap:normal;text-overflow: ellipsis">
+                                {{ item.title }}</h2>
                         </el-link>
                     </div>
                     <div style="height: 100px;max-width: 600px;overflow-x: hidden;overflow-y: hidden;">
                         <div style="height: 24px;color: grey;font-size: 12px;">
                             <span v-if="item.source">
-                                {{ item.source }}（{{item.sourceHash}}）|| 
+                                {{ item.source }}（{{ item.sourceHash }}）||
                             </span>
                             <span v-if="item.tags && item.tags.length > 0">
-                                <span class="result-item-tags" v-for="tag, index in getTags(item.tags)"
-                                :key="index">{{ tag }}</span>
+                                <span class="result-item-tags" v-for="tag, index in getTags(item.tags)" :key="index">{{ tag
+                                }}</span>
                             </span>
                         </div>
-                        <div style="overflow: hidden;max-width: 600px;word-wrap:normal;text-overflow: ellipsis;word-break:break-all;max-height: 80px;">
+                        <div
+                            style="overflow: hidden;max-width: 600px;word-wrap:normal;text-overflow: ellipsis;word-break:break-all;max-height: 80px;">
                             {{ item.info }}
                         </div>
                     </div>
@@ -40,7 +44,8 @@
                 </div>
             </el-col>
             <div style="position: relative;">
-                    <el-button style="position: absolute;top:0px;right: 0px;">收藏</el-button>
+                <el-button style="position: absolute;top:0px;right: 0px;" @click="star(item)">{{ getStarStr(item)
+                }}</el-button>
             </div>
             <!-- <el-col span="3" style="min-width: 100px;justify-content: center;">
                 
@@ -57,6 +62,12 @@ export default {
             default() {
                 return []
             }
+        }
+    },
+    data() {
+        return {
+            isShow: false,
+            tags: ''
         }
     },
     methods: {
@@ -78,6 +89,27 @@ export default {
                 tags = tags.split(",")
             }
             return tags
+        },
+        star(item) {
+            this.$emit("star", item)
+        },
+        isHave(item) {
+            let starHash = JSON.parse(localStorage['starHash'] || '[]')
+            if (!('md5' in item)) {
+                let { image, info, tags, star, ...obj } = item
+                item.md5 = this.uExt.md5(obj)
+            }
+            return starHash.includes(item.md5)
+        },
+        getAndSetMd5(item) {
+            if (!('md5' in item)) {
+                let { image, info, tags, star, ...obj } = item
+                item.md5 = this.uExt.md5(obj)
+            }
+            return item.md5
+        },
+        getStarStr(item) {
+            return this.isHave(item) ? '取消' : '收藏'
         }
     }
 }
@@ -117,18 +149,21 @@ export default {
     transform: scale(1.1)
 }
 
-.result-item-tags{
+.result-item-tags {
     margin-right: 5px;
 }
-.result-item-eps{
+
+.result-item-eps {
     margin-right: 8px;
     margin-bottom: 5px;
     display: inline-block;
 }
-.result-item-eps-box:hover{
+
+.result-item-eps-box:hover {
     background-color: rgb(253, 253, 253);
 }
-.result-item-eps-box{
+
+.result-item-eps-box {
     height: 60px;
     overflow-x: hidden;
     overflow-y: auto;

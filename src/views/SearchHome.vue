@@ -58,7 +58,7 @@
             <div>
                 <el-row style="padding-bottom: 32px;">
                     <el-col span="20">
-                        <AnimeResult :data="showSearchData" />
+                        <AnimeResult :data="showSearchData" @star="star" />
                     </el-col>
                     <el-col span="4">
                     </el-col>
@@ -83,6 +83,20 @@
                 </el-tree>
             </div>
         </el-drawer>
+        <el-dialog v-model="tags.isShow" title="标签设置">
+            <div>
+                <div>
+                    <p>请用","分割标签，例如：奇幻,治愈</p>
+                </div>
+                <el-input v-model="tags.value"></el-input>
+            </div>
+            <template #footer>
+                <span>
+                    <el-button @click="tags.isShow = false">取消</el-button>
+                    <el-button @click="star">确定</el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -109,6 +123,11 @@ export default {
     components: { AnimeResult },
     data() {
         return {
+            tags: {
+                value: '',
+                isShow: false
+            },
+            starData: [],
             isMore: false,
             drawer: false,
             openTest: false,
@@ -117,41 +136,41 @@ export default {
             treeValue: '',
             treeData: [],
             searchData: [],
-            showSearchData: [],
-            // showSearchData: [{
-            //     title: "aaa1111111111111111111111112111111111111111111111111111112111111111",
-            //     url: "#",
-            //     tags: 'aaa,dasd,d2qdqa,adsas,asd',
-            //     info: "asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd ",
-            //     eps: [{
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }]
-            // }],
+            // showSearchData: [],
+            showSearchData: [{
+                title: "aaa1111111111111111111111112111111111111111111111111111112111111111",
+                url: "#",
+                tags: 'aaa,dasd,d2qdqa,adsas,asd',
+                info: "asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd ",
+                eps: [{
+                    title: "a",
+                    url: "#"
+                }, {
+                    title: "a",
+                    url: "#"
+                }, {
+                    title: "a",
+                    url: "#"
+                }, {
+                    title: "a",
+                    url: "#"
+                }, {
+                    title: "a",
+                    url: "#"
+                }, {
+                    title: "a",
+                    url: "#"
+                }, {
+                    title: "a",
+                    url: "#"
+                }, {
+                    title: "a",
+                    url: "#"
+                }, {
+                    title: "a",
+                    url: "#"
+                }]
+            }],
             filterSearchData: [],
             searchComponents: [],
             page: {
@@ -196,9 +215,40 @@ export default {
     },
     mounted() {
         this.loadEnableComponentsAndSelect()
-
     },
     methods: {
+        star(data) {
+            let starHash = JSON.parse(localStorage['starHash'] || '[]')
+            let starData = JSON.parse(localStorage['starData'] || '[]')
+            if (this.tags.isShow) {
+                if (!('md5' in this.starData)) {
+                    let { image, info, tags, star, ...obj } = this.starData
+                    this.starData.md5 = this.uExt.md5(obj)
+                }
+
+                this.starData.tags = this.tags.value.replaceAll("，", ',')
+                starHash.push(this.starData.md5)
+                starData.push(this.starData)
+                localStorage['starHash'] = JSON.stringify(starHash)
+                localStorage['starData'] = JSON.stringify(starData)
+                this.starData.star = true
+                this.tags.isShow = false
+            } else {
+                console.log('data', data, 'starHash.includes(data.md5)', starHash.includes(data.md5));
+                if (starHash.includes(data.md5)) {
+                    starHash.splice(starHash.indexOf(data.md5), 1)
+                    starData.splice(starData.indexOf(starData.find(d => {
+                        return d.md5 == data.md5
+                    })), 1)
+                    localStorage['starHash'] = JSON.stringify(starHash)
+                    localStorage['starData'] = JSON.stringify(starData)
+                    this.starData.star = false
+                } else {
+                    this.starData = data
+                    this.tags.isShow = true
+                }
+            }
+        },
         test(flag) {
             this.showTestEdit = flag
             if (flag) {

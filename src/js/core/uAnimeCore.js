@@ -180,7 +180,7 @@ const uAnimeCore = {
         } else {
             let key = []
             for (let d of data) {
-                let { m, ...obj } = d
+                let { md5, ...obj } = d
                 d.md5 = uExt.md5(obj)
                 key.push(d.md5)
                 window.localStorage[d.md5] = JSON.stringify(d)
@@ -373,7 +373,7 @@ const uAnimeCore = {
                     }
                 }
             }
-            let { image, info, ...obj } = parseItem
+            let { image, info, tags, ...obj } = parseItem
             parseItem.md5 = uExt.md5(obj)
             parseItem.source = component.name
             parseItem.sourceHash = component.md5
