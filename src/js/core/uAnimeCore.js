@@ -373,7 +373,7 @@ const uAnimeCore = {
                     }
                 }
             }
-            let { image, info, tags, ...obj } = parseItem
+            let { image, info, tags, star, ...obj } = parseItem
             parseItem.md5 = uExt.md5(obj)
             parseItem.source = component.name
             parseItem.sourceHash = component.md5
