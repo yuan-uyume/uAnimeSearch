@@ -1,6 +1,6 @@
 <template>
     <div style="max-width: 950px;">
-        <el-row :id="item.md5" class="result-item" v-for="item, index in data" :key="getAndSetMd5(item)+item.star">
+        <el-row :id="getAndSetMd5(item) + '-' +item.star" class="result-item" v-for="item, index in data" :key="getAndSetMd5(item) + '-' +item.star">
             <el-col span="6" style="min-width: 200px;max-width: 200px;padding-right: 18px;max-height: 200px;">
                 <div class="on-border">
                     <a target="_blank" :href="item.url" style="position: relative;bottom:7px;width: 100%;">
@@ -44,8 +44,10 @@
                 </div>
             </el-col>
             <div style="position: relative;">
-                <el-button style="position: absolute;top:0px;right: 0px;" @click="star(item)">{{ getStarStr(item)
+                <el-button style="position: absolute; top:0px;right: 0;" @click="star(item)">{{ getStarStr(item)
                 }}</el-button>
+                <el-button style="position: absolute; top:36px;right: 0;" v-if="item.star && item.status == '追番'">更新</el-button>
+                <el-button style="position: absolute; top:72px;right: 0;" v-if="item.star">{{getUpdateStr(item)}}</el-button>
             </div>
             <!-- <el-col span="3" style="min-width: 100px;justify-content: center;">
                 
@@ -95,21 +97,23 @@ export default {
         },
         isHave(item) {
             let starHash = JSON.parse(localStorage['starHash'] || '[]')
-            if (!('md5' in item)) {
-                let { image, info, tags, star, ...obj } = item
-                item.md5 = this.uExt.md5(obj)
+            let e = starHash.includes(this.getAndSetMd5(item))
+            if (e) {
+                item.star = true
             }
-            return starHash.includes(item.md5)
+            return e
         },
         getAndSetMd5(item) {
             if (!('md5' in item)) {
-                let { image, info, tags, star, ...obj } = item
-                item.md5 = this.uExt.md5(obj)
+                item.md5 = this.uExt.resultMd5(item)
             }
             return item.md5
         },
         getStarStr(item) {
             return this.isHave(item) ? '取消' : '收藏'
+        },
+        getUpdateStr(item) {
+            return item.status == '追番' ? '取消追番':'追番' 
         }
     }
 }

@@ -143,13 +143,20 @@ export default {
         },
         star(data) {
             let starHash = this.dataHash
-            let starData = this.dataHash
+            let starData = this.data
             console.log('data', data, 'starHash.includes(data.md5)', starHash.includes(data.md5));
             if (starHash.includes(data.md5)) {
+                data.star = false
                 starHash.splice(starHash.indexOf(data.md5), 1)
                 starData.splice(starData.indexOf(starData.find(d => {
                     return d.md5 == data.md5
                 })), 1)
+                localStorage['starHash'] = JSON.stringify(starHash)
+                localStorage['starData'] = JSON.stringify(starData)
+            } else {
+                data.star = true
+                starHash.push(data.md5)
+                starData.push(data)
                 localStorage['starHash'] = JSON.stringify(starHash)
                 localStorage['starData'] = JSON.stringify(starData)
             }

@@ -103,6 +103,14 @@ const uAnimeEx = {
         let { md5, ...obj } = data
         data.md5 = uAnimeEx.md5(obj)
         return data
+    },
+    resultMd5: function (data) {
+        let { md5, image, info, tags, star, status, source, sourceHash, eps, ...obj } = data
+        return uAnimeEx.md5(obj)
+    },
+    updateResultMd5: function (data) {
+        data.md5 = uAnimeEx.resultMd5(data)
+        return data
     }
 }
 

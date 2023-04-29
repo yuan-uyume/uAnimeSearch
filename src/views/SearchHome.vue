@@ -140,6 +140,7 @@ export default {
             showSearchData: [{
                 title: "aaa1111111111111111111111112111111111111111111111111111112111111111",
                 url: "#",
+                star: false,
                 tags: 'aaa,dasd,d2qdqa,adsas,asd',
                 info: "asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd ",
                 eps: [{
@@ -221,29 +222,29 @@ export default {
             let starHash = JSON.parse(localStorage['starHash'] || '[]')
             let starData = JSON.parse(localStorage['starData'] || '[]')
             if (this.tags.isShow) {
-                if (!('md5' in this.starData)) {
-                    let { image, info, tags, star, ...obj } = this.starData
-                    this.starData.md5 = this.uExt.md5(obj)
-                }
-
+                // 设置tags保存收藏数据
                 this.starData.tags = this.tags.value.replaceAll("，", ',')
+                this.starData.star = true
                 starHash.push(this.starData.md5)
                 starData.push(this.starData)
                 localStorage['starHash'] = JSON.stringify(starHash)
                 localStorage['starData'] = JSON.stringify(starData)
-                this.starData.star = true
                 this.tags.isShow = false
             } else {
+                // 打开收藏tags界面
+                data.md5 = this.uExt.resultMd5(data)
                 console.log('data', data, 'starHash.includes(data.md5)', starHash.includes(data.md5));
                 if (starHash.includes(data.md5)) {
+                    // 如果已经收藏
                     starHash.splice(starHash.indexOf(data.md5), 1)
                     starData.splice(starData.indexOf(starData.find(d => {
                         return d.md5 == data.md5
                     })), 1)
+                    data.star = false
                     localStorage['starHash'] = JSON.stringify(starHash)
                     localStorage['starData'] = JSON.stringify(starData)
-                    this.starData.star = false
                 } else {
+                    // 没有收藏
                     this.starData = data
                     this.tags.isShow = true
                 }
@@ -310,6 +311,14 @@ export default {
                 this.filterSearchData = this.searchData
                 this.genPageData(size)
             })
+        },
+        genData(data) {
+            let starHash = JSON.parse(localStorage['starHash'] || '[]')
+            for (let d of data) {
+                if (starHash.includes(d.md5)) {
+                    d.star = true
+                }
+            }
         },
         getSearchComponents() {
             let data = Object.assign({}, this.uCore.getSearchSources(true));
