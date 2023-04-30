@@ -68,6 +68,7 @@ export default {
             return url.trim() == 'https://raw.githubusercontent.com/yuan-uyume/uAnimeSearch/master/data/uyume_like.json'
         },
         handleDelete(idx, row) {
+            console.log("del source up", idx, row)
             this.tableData.splice(idx, 1)
         },
         handleEdit(idx, row) {

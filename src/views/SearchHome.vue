@@ -58,7 +58,7 @@
             <div>
                 <el-row style="padding-bottom: 32px;">
                     <el-col span="20">
-                        <AnimeResult :data="showSearchData" />
+                        <AnimeResult :data="showSearchData" @star="star" @dataChange="dataChange" />
                     </el-col>
                     <el-col span="4">
                     </el-col>
@@ -83,6 +83,20 @@
                 </el-tree>
             </div>
         </el-drawer>
+        <el-dialog v-model="tags.isShow" title="标签设置">
+            <div>
+                <div>
+                    <p>请用","分割标签，例如：奇幻,治愈</p>
+                </div>
+                <el-input v-model="tags.value"></el-input>
+            </div>
+            <template #footer>
+                <span>
+                    <el-button @click="tags.isShow = false">取消</el-button>
+                    <el-button @click="star">确定</el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -109,6 +123,11 @@ export default {
     components: { AnimeResult },
     data() {
         return {
+            tags: {
+                value: '',
+                isShow: false
+            },
+            starData: [],
             isMore: false,
             drawer: false,
             openTest: false,
@@ -117,41 +136,45 @@ export default {
             treeValue: '',
             treeData: [],
             searchData: [],
-            showSearchData: [],
-            // showSearchData: [{
-            //     title: "aaa1111111111111111111111112111111111111111111111111111112111111111",
-            //     url: "#",
-            //     tags: 'aaa,dasd,d2qdqa,adsas,asd',
-            //     info: "asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd ",
-            //     eps: [{
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }, {
-            //         title: "a",
-            //         url: "#"
-            //     }]
-            // }],
+            // showSearchData: [],
+            showSearchData: [{
+                title: "这是一个搜索标题",
+                url: "#",
+                star: false,
+                tags: '演示',
+                info: "点击收藏可以收藏。点击追番后在收藏页面可以更新剧集数据",
+                eps: [{
+                    title: "I",
+                    url: "#"
+                }, {
+                    title: " ",
+                    url: "#"
+                },{
+                    title: "L",
+                    url: "#"
+                }, {
+                    title: "O",
+                    url: "#"
+                }, {
+                    title: "V",
+                    url: "#"
+                }, {
+                    title: "E",
+                    url: "#"
+                }, {
+                    title: " ",
+                    url: "#"
+                }, {
+                    title: "Y",
+                    url: "#"
+                }, {
+                    title: "O",
+                    url: "#"
+                }, {
+                    title: "U",
+                    url: "#"
+                }]
+            }],
             filterSearchData: [],
             searchComponents: [],
             page: {
@@ -196,9 +219,43 @@ export default {
     },
     mounted() {
         this.loadEnableComponentsAndSelect()
-
     },
     methods: {
+        dataChange(data) {
+            localStorage['starData'] = JSON.stringify(this.data)
+        },
+        star(data) {
+            let starHash = JSON.parse(localStorage['starHash'] || '[]')
+            let starData = JSON.parse(localStorage['starData'] || '[]')
+            if (this.tags.isShow) {
+                // 设置tags保存收藏数据
+                this.starData.tags = this.tags.value.replaceAll("，", ',')
+                this.starData.star = true
+                starHash.push(this.starData.md5)
+                starData.push(this.starData)
+                localStorage['starHash'] = JSON.stringify(starHash)
+                localStorage['starData'] = JSON.stringify(starData)
+                this.tags.isShow = false
+            } else {
+                // 打开收藏tags界面
+                data.md5 = this.uExt.resultMd5(data)
+                console.log('data', data, 'starHash.includes(data.md5)', starHash.includes(data.md5));
+                if (starHash.includes(data.md5)) {
+                    // 如果已经收藏
+                    starHash.splice(starHash.indexOf(data.md5), 1)
+                    starData.splice(starData.indexOf(starData.find(d => {
+                        return d.md5 == data.md5
+                    })), 1)
+                    data.star = false
+                    localStorage['starHash'] = JSON.stringify(starHash)
+                    localStorage['starData'] = JSON.stringify(starData)
+                } else {
+                    // 没有收藏
+                    this.starData = data
+                    this.tags.isShow = true
+                }
+            }
+        },
         test(flag) {
             this.showTestEdit = flag
             if (flag) {
@@ -260,6 +317,14 @@ export default {
                 this.filterSearchData = this.searchData
                 this.genPageData(size)
             })
+        },
+        genData(data) {
+            let starHash = JSON.parse(localStorage['starHash'] || '[]')
+            for (let d of data) {
+                if (starHash.includes(d.md5)) {
+                    d.star = true
+                }
+            }
         },
         getSearchComponents() {
             let data = Object.assign({}, this.uCore.getSearchSources(true));
