@@ -1,6 +1,6 @@
 <template>
     <div style="max-width: 950px;">
-        <el-row :id="getAndSetMd5(item) + '-' +item.star" class="result-item" v-for="item, index in data" :key="getAndSetMd5(item) + '-' +item.star">
+        <el-row :id="getId(item)" class="result-item" v-for="item, index in data" :key="getId(item)">
             <el-col span="6" style="min-width: 200px;max-width: 200px;padding-right: 18px;max-height: 200px;">
                 <div class="on-border">
                     <a target="_blank" :href="item.url" style="position: relative;bottom:7px;width: 100%;">
@@ -46,8 +46,8 @@
             <div style="position: relative;">
                 <el-button style="position: absolute; top:0px;right: 0;" @click="star(item)">{{ getStarStr(item)
                 }}</el-button>
-                <el-button style="position: absolute; top:36px;right: 0;" v-if="item.star && item.status == '追番'">更新</el-button>
-                <el-button style="position: absolute; top:72px;right: 0;" v-if="item.star">{{getUpdateStr(item)}}</el-button>
+                <el-button style="position: absolute; top:36px;right: 0;" @click="cl('update', item)" v-if="item.star && item.status == '追番'">更新</el-button>
+                <el-button style="position: absolute; top:72px;right: 0;" @click="cl('zhuifan', item)" v-if="item.star">{{getUpdateStr(item)}}</el-button>
             </div>
             <!-- <el-col span="3" style="min-width: 100px;justify-content: center;">
                 
@@ -114,6 +114,27 @@ export default {
         },
         getUpdateStr(item) {
             return item.status == '追番' ? '取消追番':'追番' 
+        },
+        getId(item) {
+           return this.getAndSetMd5(item) + '-' +item.star + '-' + item.status + '-' + item.eps.length
+        },
+        cl(method, item) {
+            if (method == 'zhuifan') {
+                console.log(method, item)
+                item.status == '追番' ? item.status = '' : item.status = '追番'
+                this.$emit('dataChange', item)
+            } else if (method == 'update') {
+                if (item.sourceHash && item.sourceHash.trim != '') {
+                    // 异步更新剧集数据
+                    this.uCore.updateEpsInfoForResultItemByHtml(item)
+                    .then(d => {
+                        console.debug(method, d, item)
+                        this.$emit('dataChange', d)
+                    })
+                } else {
+                    return
+                }
+            }
         }
     }
 }

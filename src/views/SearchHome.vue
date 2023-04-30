@@ -58,7 +58,7 @@
             <div>
                 <el-row style="padding-bottom: 32px;">
                     <el-col span="20">
-                        <AnimeResult :data="showSearchData" @star="star" />
+                        <AnimeResult :data="showSearchData" @star="star" @dataChange="dataChange" />
                     </el-col>
                     <el-col span="4">
                     </el-col>
@@ -138,37 +138,40 @@ export default {
             searchData: [],
             // showSearchData: [],
             showSearchData: [{
-                title: "aaa1111111111111111111111112111111111111111111111111111112111111111",
+                title: "这是一个搜索标题",
                 url: "#",
                 star: false,
-                tags: 'aaa,dasd,d2qdqa,adsas,asd',
-                info: "asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd asdd ",
+                tags: '演示',
+                info: "点击收藏可以收藏。点击追番后在收藏页面可以更新剧集数据",
                 eps: [{
-                    title: "a",
+                    title: "I",
                     url: "#"
                 }, {
-                    title: "a",
+                    title: " ",
+                    url: "#"
+                },{
+                    title: "L",
                     url: "#"
                 }, {
-                    title: "a",
+                    title: "O",
                     url: "#"
                 }, {
-                    title: "a",
+                    title: "V",
                     url: "#"
                 }, {
-                    title: "a",
+                    title: "E",
                     url: "#"
                 }, {
-                    title: "a",
+                    title: " ",
                     url: "#"
                 }, {
-                    title: "a",
+                    title: "Y",
                     url: "#"
                 }, {
-                    title: "a",
+                    title: "O",
                     url: "#"
                 }, {
-                    title: "a",
+                    title: "U",
                     url: "#"
                 }]
             }],
@@ -218,6 +221,9 @@ export default {
         this.loadEnableComponentsAndSelect()
     },
     methods: {
+        dataChange(data) {
+            localStorage['starData'] = JSON.stringify(this.data)
+        },
         star(data) {
             let starHash = JSON.parse(localStorage['starHash'] || '[]')
             let starData = JSON.parse(localStorage['starData'] || '[]')

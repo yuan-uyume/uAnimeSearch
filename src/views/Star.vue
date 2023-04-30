@@ -26,7 +26,7 @@
         <div>
             <el-row style="padding-bottom: 32px;">
                 <el-col span="20">
-                    <AnimeResult :data="showData" @star="star" />
+                    <AnimeResult :data="showData" @star="star" @dataChange="dataChange" />
                 </el-col>
                 <el-col span="4">
                 </el-col>
@@ -160,6 +160,9 @@ export default {
                 localStorage['starHash'] = JSON.stringify(starHash)
                 localStorage['starData'] = JSON.stringify(starData)
             }
+        },
+        dataChange(data) {
+            localStorage['starData'] = JSON.stringify(this.data)
         }
     }
 }

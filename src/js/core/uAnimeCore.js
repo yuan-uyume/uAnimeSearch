@@ -3,6 +3,7 @@ import $ from 'jquery'
 const uAnimeCore = {
     version: "0.0.1",
     sources: {},
+    components: {},
     log: function (component, ...txt) {
         console.log(component ? component.name + "(" + component.md5 + ")" : "uAnimeCore", ...txt);
     },
@@ -380,6 +381,39 @@ const uAnimeCore = {
         uAnimeCore.log(component, "getResultItemFromHtml parseItems:", parseItems)
         return parseItems
     },
+    getComponent: function(key, update) {
+        if (update) {
+            uAnimeCore.components = uAnimeCore.genComponents()
+        } else if (!(key in uAnimeCore.components)){
+            uAnimeCore.components = uAnimeCore.genComponents()
+        }
+        let result = uAnimeCore.components[key] || null
+        uAnimeCore.debug(null, "getComponent", key, result)
+        return result
+    },
+    genComponents: function() {
+        let sources = uAnimeCore.getSearchSources(true)
+        let result = {}
+        let componentsStorage = sources.componentsStorage
+        let userComponents = sources.userComponents
+        // console.log(Object.keys(componentsStorage));
+        // console.log('componentsStorage',componentsStorage && Object.keys(componentsStorage) > 0,'userComponents',componentsStorage && Object.keys(componentsStorage) > 0);
+        if (componentsStorage && Object.keys(componentsStorage).length > 0) {
+            for (let rule of componentsStorage.rules) {
+                result[rule.md5] = rule
+            }
+        }
+        if (userComponents && Object.keys(userComponents).length > 0) {
+            for (let component of userComponents) {
+                for (let rule of component.rules) {
+                    result[rule.md5] = rule
+                }
+            }
+        }
+        uAnimeCore.components = result
+        uAnimeCore.debug(null, "uAnimeCore.components", uAnimeCore.components)
+        return uAnimeCore.components
+    },
     addEpsInfoToResultItemsByHtml: function (component, resultItems) {
         return new Promise(resolve => {
             let i = 0
@@ -422,6 +456,42 @@ const uAnimeCore = {
                         resolve(resultItems)
                     }
                 }
+            }
+        })
+    },
+    updateEpsInfoForResultItemByHtml: function (item) {
+        return new Promise((resolve , reject) => {
+            let component = uAnimeCore.getComponent(item.sourceHash)
+            if (component == null) {
+                resolve(item)
+            }
+            if (item.url && item.url.trim() != '') {
+                uAnimeCore.getHtmlFromUrl(component, item.url).then(html => {
+                    uAnimeCore.log(component, "get eps for ", item, item.url)
+                    if (html && html.trim() != '') {
+                        let eps = uAnimeCore.parseText(html, component.htmlDataTrans.anime.eps.arr)
+                        uAnimeCore.debug(component, "addEpsInfoToResultItemsByHtml", item, eps)
+                        let epsData = []
+                        for (let ep of eps) {
+                            let epData = {}
+                            for (let key of ['title', 'url']) {
+                                epData[key] = uAnimeCore.parseDom(ep, component.htmlDataTrans.anime.eps[key])
+                                if (key == 'url') {
+                                    if (epData[key].startsWith(chrome.runtime.getURL("/"))) {
+                                        epData[key] = epData[key].replaceAll(chrome.runtime.getURL("/"), '')
+                                        if (!epData[key].startsWith("/")) {
+                                            epData[key] = '/' + epData[key]
+                                        }
+                                        epData[key] = component.search.site + epData[key]
+                                    }
+                                }
+                            }
+                            epsData.push(epData)
+                        }
+                        item.eps = epsData
+                    }
+                    resolve(item)
+                })
             }
         })
     }
