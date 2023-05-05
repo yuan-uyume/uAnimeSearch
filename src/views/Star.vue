@@ -3,7 +3,7 @@
         <div>
             <el-row gutter="56">
                 <el-col span="18" style="max-width: 800px;min-width: 300px;flex: 2">
-                    <el-input placeholder="输入要搜索的内容"></el-input>
+                    <el-input v-model="searchValue" placeholder="输入要搜索的内容" @keyup.enter.native="search(0)"></el-input>
                 </el-col>
                 <el-col span="6" style="min-width: 300px;flex: 1">
                     <el-button @click="search(0)">
@@ -17,7 +17,8 @@
             <el-row>
                 <div class="u-tags">
                     <el-row>
-                        <span v-for="item, index in tags" :key="index">{{ item }}</span>
+                        <span v-for="item, index in tags" :key="index" style="margin-right: 12px;"><el-button
+                                @click="search(item)">{{ item }}</el-button></span>
                     </el-row>
                 </div>
             </el-row>
@@ -72,6 +73,33 @@ export default {
         this.loadData()
     },
     methods: {
+        update() {
+            let updateData = this.data.filter(d => {
+                return d.status == '追番'
+            })
+            let loading = this.$loading({
+                lock: true,
+                text: 'Loading',
+                background: 'rgba(0, 0, 0, 0.7)',
+            })
+            let i = 0
+            for (let d of updateData) {
+                this.uCore.updateEpsInfoForResultItemByHtml(d)
+                    .then(dd => {
+                        console.debug('updateEpsInfoForResultItemByHtml', d, dd)
+                        i++
+                        if (i >= updateData.length) {
+                            loading.close()
+                            this.$message({
+                                type: "success",
+                                message: "更新番剧数据成功！"
+                            })
+                        }
+                    })
+            }
+            this.search()
+            this.genPageData()
+        },
         loadData() {
             this.data = JSON.parse(localStorage['starData'] || '[]')
             this.dataHash = JSON.parse(localStorage['starHash'] || '[]')
@@ -79,6 +107,7 @@ export default {
             this.search()
             this.genPageData()
             this.genTags()
+            this.update()
         },
         loadSources() {
             let data = Object.assign({}, this.uCore.getSearchSources(true));
@@ -121,25 +150,30 @@ export default {
         },
         search(type) {
             let value = this.searchValue.trim()
-            if (value && value != '') {
+            if ((value && value != '') || (value == '' && type != undefined)) {
                 if (type) {
+                    console.log("searchTags", type, value);
                     this.filtersData = this.data.filter(d => {
-                        return d.tags.indexOf(value)
+                        return d.tags.indexOf(value) > -1 && d.tags.indexOf(type) > -1
                     })
                 } else {
                     this.filtersData = this.data.filter(d => {
-                        return d.title.indexOf(value) || d.info.indexOf(value) || d.tags.indexOf(value)
+                        return d.title.indexOf(value) > -1 || d.info.indexOf(value) > -1 || d.tags.indexOf(value) > -1
                     })
                 }
             } else {
                 this.filtersData = this.data
             }
+            this.genPageData()
+            console.log('searchValue', type, value, this.filtersData);
         },
         changeShowData(current) {
             if (this.pageData.length > 0) {
                 this.showData = this.pageData[--current]
-                console.log("changeShowData", current, this.showData);
+            } else {
+                this.showData = []
             }
+            console.log("changeShowData", current, this.showData);
         },
         star(data) {
             let starHash = this.dataHash
