@@ -5,9 +5,9 @@ function addEventListener() {
     if(event.keyCode == 13) {
       let txt = input.value.trim()
       if (txt == '') {
-        window.open("./index.html")
+        window.open("./index.html#/search")
       } else {
-        window.open("./index.html?value="+ txt +"&type=0")
+        window.open("./index.html#/search?value="+ txt +"&type=0")
       }
     }
   })
