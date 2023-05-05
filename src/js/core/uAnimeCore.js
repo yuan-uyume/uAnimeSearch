@@ -468,6 +468,7 @@ const uAnimeCore = {
                 })
                 if (component && component.length > 0) {
                     component = component[0]
+                    item.sourceHash = component.MD5
                 } else {
                     resolve(item)
                 }
