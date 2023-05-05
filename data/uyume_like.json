@@ -100,7 +100,7 @@
             "name": "AGE动漫",
             "search": {
                 "api": false,
-                "site": "https://www.agemys.net",
+                "site": "https://www.agemys.vip",
                 "path": "/search?query={1}&page=1",
                 "page": "/search?query={1}&page={2}"
             },
@@ -185,7 +185,7 @@
                     }
                 }
             },
-            "md5": "e3eb6651b25252ef2d13da1a008bd5bd"
+            "md5": "1a36103077d9811073bb9e7c9ee2e4a0"
         },
         {
             "name": "zzzfun动漫",
@@ -464,5 +464,5 @@
             "md5": "94e95e633380adc38463b55b16efe7a2"
         }
     ],
-    "md5": "2ea169f392b924b440c4a8c9e7f966f5"
+    "md5": "3df8029dfb8d192eef6c85f9b9e9620d"
 }
