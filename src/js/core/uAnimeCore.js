@@ -161,7 +161,7 @@ const uAnimeCore = {
         let componentsStorage = JSON.parse(window.localStorage["componentsStorage"] ? window.localStorage["componentsStorage"] : "{}")
         sources.componentsStorage = componentsStorage
         sources.userComponents = {}
-        console.log('load components', componentsStorage.name);
+        console.log('load components', componentsStorage.md5, componentsStorage.name);
         let userComponentsHashAddr = JSON.parse(window.localStorage["userComponentsHash"] ? window.localStorage["userComponentsHash"] : "[]")
         if (userComponentsHashAddr == null || userComponentsHashAddr.length == 0) {
             console.log('components load complated 1', sources);
@@ -170,7 +170,7 @@ const uAnimeCore = {
         for (let hash of userComponentsHashAddr) {
             let userComponents = JSON.parse(window.localStorage[hash])
             sources.userComponents[hash] = userComponents
-            console.log('load components hash', userComponents.name);
+            console.log('load components hash', userComponents.md5, userComponents.name);
         }
         console.log('components load complated 2', sources);
         return sources
@@ -463,7 +463,14 @@ const uAnimeCore = {
         return new Promise((resolve , reject) => {
             let component = uAnimeCore.getComponent(item.sourceHash)
             if (component == null) {
-                resolve(item)
+                component = uAnimeCore.components.filter(d => {
+                    d.name == item.name
+                })
+                if (component && component.length > 0) {
+                    component = component[0]
+                } else {
+                    resolve(item)
+                }
             }
             if (item.url && item.url.trim() != '') {
                 uAnimeCore.getHtmlFromUrl(component, item.url).then(html => {

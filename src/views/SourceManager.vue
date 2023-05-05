@@ -108,9 +108,9 @@ export default {
     },
     methods: {
         getLoadData() {
-            let data = this.uCore.getSearchSources(true)
-            console.log("created data,", data);
-            this.loadData = data.userComponents
+            let data = Object.assign({}, this.uCore.getSearchSources(true));
+            console.log("source manager created data,", data);
+            this.loadData = Object.assign({}, data.userComponents)
             console.log(Object.keys(data.componentsStorage));
             if (data.componentsStorage != undefined && Object.keys(data.componentsStorage).length > 0) {
                 data.componentsStorage.sys = true

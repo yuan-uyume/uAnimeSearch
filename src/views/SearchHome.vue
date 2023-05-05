@@ -328,7 +328,7 @@ export default {
         },
         getSearchComponents() {
             let data = Object.assign({}, this.uCore.getSearchSources(true));
-            console.log("created data,", data);
+            console.log("search home created data,", data);
             this.searchComponents = Object.assign({}, data.userComponents);
             if (data.componentsStorage == undefined || Object.keys(data.componentsStorage).length == 0) {
                 let componentUp = {
