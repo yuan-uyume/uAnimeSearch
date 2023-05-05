@@ -143,7 +143,7 @@ const uAnimeCore = {
     collectSearchResult: function (component, data, addData, word, currentPage, page, limit) {
         return new Promise((resolve, reject) => {
             uAnimeCore.log(component, uAnimeCore.replace("collect {1} page {2}", word, currentPage), addData)
-            if (data.length + addData.length > limit) { SuccessFilled
+            if (data.length + addData.length > limit) { 
                 addData = addData.slice(0, limit - data.length)
             }
             data.push(...addData)
